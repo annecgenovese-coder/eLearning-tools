@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venn Diagram Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: #e8fffe;
+    color: #333333;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .container {
+    max-width: 960px;
+    width: 100%;
+  }
+  .title {
+    text-align: center;
+    color: #a00156;
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 17px;
+    opacity: 0.65;
+    margin-bottom: 24px;
+  }
+  .venn-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .venn-area {
+    position: relative;
+    width: 660px;
+    height: 400px;
+  }
+  .circle {
+    position: absolute;
+    top: 0;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+  }
+  .circle-left {
+    left: 0;
+    border: 3px solid #a00156;
+    background: rgba(160,1,86,0.1);
+  }
+  .circle-right {
+    right: 0;
+    border: 3px solid #8296b8;
+    background: rgba(130,150,184,0.1);
+  }
+   .circle-label {
+     position: absolute;
+     top: 60px;
+     font-weight: 700;
+     font-size: 18px;
+   }
+  .circle-left .circle-label {
+    left: 0;
+    width: 260px;
+    text-align: center;
+    color: #a00156;
+  }
+  .circle-right .circle-label {
+    right: 0;
+    width: 260px;
+    text-align: center;
+    color: #8296b8;
+  }
+   .zone-items {
+     position: absolute;
+     top: 86px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+  }
+  .circle-left .zone-items {
+    left: 10px;
+    width: 240px;
+  }
+  .circle-right .zone-items {
+    right: 10px;
+    width: 240px;
+  }
+  .overlap-zone {
+    position: absolute;
+    left: 260px;
+    top: 0;
+    width: 140px;
+    height: 400px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .overlap-label {
+    font-weight: 700;
+    font-size: 16px;
+    color: #7a5c87;
+    margin-bottom: 4px;
+  }
+  .item-bank {
+    border: 2px dashed #dddddd;
+    border-radius: 13px;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: rgba(221,221,221,0.06);
+    min-height: 52px;
+  }
+  .chip {
+    padding: 8px 14px;
+    background: #f5f5f5;
+    border: 2px solid #dddddd;
+    border-radius: 9px;
+    font-size: 17px;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+    line-height: 1.4;
+    font-family: 'Open Sans', sans-serif;
+    color: #333333;
+    transition: border-color 0.3s, transform 0.15s, box-shadow 0.15s;
+  }
+  .chip:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .chip:active { cursor: grabbing; transform: scale(1.05); }
+  .chip.correct { border-color: #2e7d32; background: rgba(46,125,50,0.06); }
+  .chip.incorrect { border-color: #c62828; background: rgba(198,40,40,0.06); }
+  .feedback {
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .feedback.success {
+    background: rgba(46,125,50,0.1);
+    color: #2e7d32;
+    display: block;
+  }
+  .feedback.tryagain {
+    background: rgba(198,40,40,0.1);
+    color: #c62828;
+    display: block;
+  }
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+  }
+  .btn-check {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 9px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    background: #a00156;
+    color: #fff;
+    transition: opacity 0.2s;
+  }
+  .btn-check:disabled { background: #ccc; cursor: default; }
+  .btn-reset {
+    padding: 12px 32px;
+    background: #fff;
+    color: #333333;
+    border: 2px solid #dddddd;
+    border-radius: 9px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-reset:hover { background: #f5f5f5; }
+  .drag-highlight { outline: 2px dashed #7a5c87; outline-offset: -4px; }
+  .attribution { text-align: center; margin-top: 20px; font-size: 11px; color: #bbb; }
+  .attribution a { color: #a00156; text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .venn-area { transform: scale(0.6); transform-origin: top center; }
+    .venn-wrap { margin-bottom: -140px; }
+    .chip { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">Venn Diagram Challenge</div>
+  <div class="subtitle">Drag each item to the correct area of the Venn diagram.</div>
+
+  <div class="venn-wrap">
+    <div class="venn-area" id="vennArea">
+      <div class="circle circle-left" id="zoneLeft">
+        <div class="circle-label">Birds</div>
+        <div class="zone-items" id="itemsLeft"></div>
+      </div>
+      <div class="circle circle-right" id="zoneRight">
+        <div class="circle-label">Fish</div>
+        <div class="zone-items" id="itemsRight"></div>
+      </div>
+      <div class="overlap-zone" id="zoneBoth">
+        <span class="overlap-label">Both</span>
+        <div id="itemsBoth" style="display:flex;flex-direction:column;align-items:center;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item-bank" id="bank"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="buttons">
+    <button class="btn-check" id="checkBtn" disabled>Check Answers</button>
+    <button class="btn-reset" id="resetBtn">Reset</button>
+  </div>
+  <div class="attribution">Built with <a href="https://elearningdesign.org" target="_blank">eLearningDesign.org</a></div>
+</div>
+
+<script>
+(function() {
+  // ── DATA ──
+  var items = [{"id":"i1","text":"Has wings","zone":"left"},{"id":"i2","text":"Can swim","zone":"right"},{"id":"i3","text":"Is an animal","zone":"both"},{"id":"i4","text":"Has feathers","zone":"left"},{"id":"i5","text":"Has scales","zone":"right"},{"id":"i6","text":"Lays eggs","zone":"both"}];
+  var placements = {};
+  var shouldShuffle = true;
+
+  // ── HELPERS ──
+  function getEl(id) { return document.getElementById(id); }
+
+  function createChip(item) {
+    var el = document.createElement('div');
+    el.className = 'chip';
+    el.textContent = item.text;
+    el.draggable = true;
+    el.setAttribute('data-id', item.id);
+
+    // Desktop drag
+    el.addEventListener('dragstart', function(e) {
+      e.dataTransfer.setData('text/plain', item.id);
+    });
+
+    // Touch support
+    var touchId = null, clone = null, offX = 0, offY = 0;
+
+    el.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      var touch = e.touches[0];
+      touchId = item.id;
+      clone = el.cloneNode(true);
+      clone.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;opacity:0.85;transform:scale(1.08);';
+      var rect = el.getBoundingClientRect();
+      offX = touch.clientX - rect.left;
+      offY = touch.clientY - rect.top;
+      clone.style.left = (touch.clientX - offX) + 'px';
+      clone.style.top = (touch.clientY - offY) + 'px';
+      document.body.appendChild(clone);
+    }, {passive: false});
+
+    el.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (!clone) return;
+      var touch = e.touches[0];
+      clone.style.left = (touch.clientX - offX) + 'px';
+      clone.style.top = (touch.clientY - offY) + 'px';
+    }, {passive: false});
+
+    el.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      if (clone) { document.body.removeChild(clone); clone = null; }
+      if (!touchId) return;
+      var touch = e.changedTouches[0];
+      var dropZones = [
+        { el: getEl('zoneLeft'), zone: 'left' },
+        { el: getEl('zoneRight'), zone: 'right' },
+        { el: getEl('zoneBoth'), zone: 'both' },
+        { el: getEl('bank'), zone: 'bank' }
+      ];
+      for (var i = 0; i < dropZones.length; i++) {
+        var dz = dropZones[i];
+        if (!dz.el) continue;
+        var r = dz.el.getBoundingClientRect();
+        if (touch.clientX >= r.left && touch.clientX <= r.right &&
+            touch.clientY >= r.top && touch.clientY <= r.bottom) {
+          placeItem(touchId, dz.zone);
+          break;
+        }
+      }
+      touchId = null;
+    }, {passive: false});
+
+    return el;
+  }
+
+  // ── DROP ZONE SETUP ──
+  var dropTargets = [
+    { id: 'zoneLeft', zone: 'left' },
+    { id: 'zoneRight', zone: 'right' },
+    { id: 'zoneBoth', zone: 'both' },
+    { id: 'bank', zone: 'bank' }
+  ];
+
+  dropTargets.forEach(function(dt) {
+    var el = getEl(dt.id);
+    if (!el) return;
+
+    el.addEventListener('dragover', function(e) { e.preventDefault(); });
+    el.addEventListener('dragenter', function(e) {
+      e.preventDefault();
+      el.classList.add('drag-highlight');
+    });
+    el.addEventListener('dragleave', function() {
+      el.classList.remove('drag-highlight');
+    });
+    el.addEventListener('drop', function(e) {
+      e.preventDefault();
+      el.classList.remove('drag-highlight');
+      var itemId = e.dataTransfer.getData('text/plain');
+      if (itemId) placeItem(itemId, dt.zone);
+    });
+  });
+
+  // ── PLACE ITEM ──
+  function placeItem(itemId, zone) {
+    var item = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id === itemId) { item = items[i]; break; }
+    }
+    if (!item) return;
+
+    // Remove existing chip
+    var existing = document.querySelector('[data-id="' + itemId + '"]');
+    if (existing) existing.parentNode.removeChild(existing);
+
+    var chip = createChip(item);
+
+    if (zone === 'bank') {
+      delete placements[itemId];
+      getEl('bank').appendChild(chip);
+    } else {
+      placements[itemId] = zone;
+      var containerId = zone === 'left' ? 'itemsLeft' : zone === 'right' ? 'itemsRight' : 'itemsBoth';
+      var container = getEl(containerId);
+      if (container) container.appendChild(chip);
+    }
+
+    // Clear feedback
+    var fb = getEl('feedback');
+    fb.className = 'feedback';
+    fb.style.display = 'none';
+
+    // Clear chip highlights
+    var allChips = document.querySelectorAll('.chip');
+    for (var j = 0; j < allChips.length; j++) {
+      allChips[j].classList.remove('correct', 'incorrect');
+    }
+
+    updateCheckButton();
+  }
+
+  // ── CHECK / RESET ──
+  function updateCheckButton() {
+    var btn = getEl('checkBtn');
+    if (btn) btn.disabled = Object.keys(placements).length < items.length;
+  }
+
+  function checkAnswers() {
+    var allCorrect = true;
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var chip = document.querySelector('[data-id="' + it.id + '"]');
+      if (!chip) continue;
+      if (placements[it.id] === it.zone) {
+        chip.classList.add('correct');
+        chip.classList.remove('incorrect');
+      } else {
+        chip.classList.add('incorrect');
+        chip.classList.remove('correct');
+        allCorrect = false;
+      }
+    }
+    var fb = getEl('feedback');
+    fb.style.display = 'block';
+    if (allCorrect) {
+      fb.className = 'feedback success';
+      fb.textContent = 'Great job! All items are placed correctly!';
+    } else {
+      fb.className = 'feedback tryagain';
+      fb.textContent = 'Some items aren\'t in the right spot. Try again!';
+    }
+  }
+
+  function resetAll() { init(); }
+
+  // ── INIT ──
+  function init() {
+    placements = {};
+    var fb = getEl('feedback');
+    fb.className = 'feedback';
+    fb.style.display = 'none';
+
+    getEl('itemsLeft').innerHTML = '';
+    getEl('itemsRight').innerHTML = '';
+    getEl('itemsBoth').innerHTML = '';
+
+    var arr = items.slice();
+    if (shouldShuffle) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+      }
+    }
+
+    var bank = getEl('bank');
+    bank.innerHTML = '';
+    for (var k = 0; k < arr.length; k++) {
+      bank.appendChild(createChip(arr[k]));
+    }
+
+    updateCheckButton();
+  }
+
+  // ── BUTTON EVENTS ──
+  var checkBtn = getEl('checkBtn');
+  if (checkBtn) checkBtn.addEventListener('click', checkAnswers);
+
+  var resetBtn = getEl('resetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', resetAll);
+
+  // ── START ──
+  init();
+})();
+</script>
+
+</body>
+</html>
