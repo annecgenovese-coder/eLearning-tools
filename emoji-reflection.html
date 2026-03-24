@@ -1,0 +1,214 @@
+<div id="emoji-block-6wflf5h"></div>
+
+<script>
+(function() {
+  const config = {
+  "prompt": "You just finished a 30-minute discovery call with a high-value prospect. They asked several difficult questions about pricing and didn't commit to a follow-up. How are you feeling as you hang up the phone?",
+  "options": [
+    {
+      "emoji": "🥸",
+      "subtitle": "Discouraged",
+      "followUpMessage": "Don't let a \"maybe\" feel like a \"no.\" High-value deals often require 5-7 touchpoints. Take five minutes to step away, then come back and log your notes while the conversation is fresh.",
+      "sound": "sad"
+    },
+    {
+      "emoji": "🔥",
+      "subtitle": "Motivated",
+      "followUpMessage": "Don't let a \"maybe\" feel like a \"no.\" High-value deals often require 5-7 touchpoints. Take five minutes to step away, then come back and log your notes while the conversation is fresh.",
+      "sound": "dialtone"
+    },
+    {
+      "emoji": "🐢",
+      "subtitle": "Defensive",
+      "followUpMessage": "It’s tough when a prospect pokes holes in your value proposition. Review the \"Handling Objections\" module in Chapter 4 to turn those pricing questions into a baseline for your next conversation.",
+      "sound": "boop"
+    },
+    {
+      "emoji": "😕",
+      "subtitle": "Uncertain",
+      "followUpMessage": "Uncertainty usually means there’s a gap in the discovery. Re-read the transcript and look for the moment their tone shifted—that’s where your next opportunity lies.",
+      "sound": "ding"
+    }
+  ],
+  "accentColor": "#06b6d4",
+  "backgroundColor": "#d0f1ec",
+  "titleText": "The \"Post-Pitch\" Debrief",
+  "titleAlignment": "center",
+  "titleFontFamily": "Poppins, sans-serif",
+  "titleFontSize": 24,
+  "titleFontColor": "#a00156",
+  "bodyFontFamily": "Poppins, sans-serif",
+  "bodyFontSize": 17,
+  "bodyFontColor": "#234648",
+  "maxWidth": 800,
+  "emojiSize": 48
+};
+  
+  
+    var SOUND_LIBRARY = {
+      ding: { freq: 800, duration: 0.15, type: "sine" },
+      bonk: { freq: 200, duration: 0.1, type: "square" },
+      happy: { freq: 600, duration: 0.2, type: "sine" },
+      sad: { freq: 300, duration: 0.3, type: "triangle" },
+      chime: { freq: 1000, duration: 0.25, type: "sine" },
+      pop: { freq: 500, duration: 0.08, type: "sine" },
+      beep: { freq: 750, duration: 0.12, type: "square" },
+      boop: { freq: 400, duration: 0.15, type: "sine" },
+      chirp: { freq: 900, duration: 0.1, type: "sine" },
+      bell: { freq: 1200, duration: 0.3, type: "sine" },
+      click: { freq: 600, duration: 0.05, type: "square" },
+      whoosh: { freq: 350, duration: 0.2, type: "sawtooth" },
+      buzzer: { freq: 150, duration: 0.4, type: "sawtooth" },
+      ringtone: { freq: 850, duration: 0.5, type: "sine" },
+      wrong: { freq: 120, duration: 0.5, type: "sawtooth" },
+      dialtone: { freq: 350, duration: 1.0, type: "sine" }
+    };
+    
+    function playSound(soundType) {
+      try {
+        var sound = SOUND_LIBRARY[soundType];
+        if (!sound) return;
+        
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        var oscillator = audioContext.createOscillator();
+        var gainNode = audioContext.createGain();
+        
+        oscillator.type = sound.type;
+        oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + sound.duration);
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
+    }
+  
+  const container = document.getElementById('emoji-block-6wflf5h');
+  container.style.fontFamily = config.bodyFontFamily;
+  container.style.padding = '2rem';
+  container.style.backgroundColor = config.backgroundColor;
+  container.style.borderRadius = '0.5rem';
+  container.style.maxWidth = config.maxWidth + 'px';
+  container.style.margin = '0 auto';
+  
+  // Title
+  if (config.titleText) {
+    const title = document.createElement('h2');
+    title.textContent = config.titleText;
+    title.style.fontSize = config.titleFontSize + 'px';
+    title.style.fontWeight = '700';
+    title.style.color = config.titleFontColor;
+    title.style.fontFamily = config.titleFontFamily;
+    title.style.textAlign = config.titleAlignment;
+    title.style.marginBottom = '0.5rem';
+    container.appendChild(title);
+  }
+  
+  // Prompt
+  const prompt = document.createElement('p');
+  prompt.textContent = config.prompt;
+  prompt.style.fontSize = config.bodyFontSize + 'px';
+  prompt.style.fontWeight = '600';
+  prompt.style.color = config.bodyFontColor;
+  prompt.style.marginBottom = '1.5rem';
+  prompt.style.textAlign = 'center';
+  prompt.style.fontFamily = config.bodyFontFamily;
+  container.appendChild(prompt);
+  
+  // Emoji buttons container
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.style.display = 'flex';
+  buttonsDiv.style.gap = '1rem';
+  buttonsDiv.style.justifyContent = 'center';
+  buttonsDiv.style.flexWrap = 'wrap';
+  buttonsDiv.style.marginBottom = '1.5rem';
+  container.appendChild(buttonsDiv);
+  
+  // Message container
+  const messageDiv = document.createElement('div');
+  messageDiv.style.minHeight = '60px';
+  messageDiv.style.padding = '1rem';
+  messageDiv.style.backgroundColor = config.accentColor + '15';
+  messageDiv.style.border = '2px solid ' + config.accentColor;
+  messageDiv.style.borderRadius = '0.5rem';
+  messageDiv.style.textAlign = 'center';
+  messageDiv.style.fontSize = config.bodyFontSize + 'px';
+  messageDiv.style.color = config.bodyFontColor;
+  messageDiv.style.fontFamily = config.bodyFontFamily;
+  messageDiv.style.display = 'none';
+  messageDiv.style.wordBreak = 'normal';
+  messageDiv.style.overflowWrap = 'break-word';
+  messageDiv.style.hyphens = 'none';
+  messageDiv.style.lineHeight = '1.6';
+  container.appendChild(messageDiv);
+  
+  // Attribution bar
+  const attribution = document.createElement('div');
+  attribution.style.marginTop = '12px';
+  attribution.style.fontSize = '12px';
+  attribution.style.color = '#6b7280';
+  attribution.style.textAlign = 'center';
+  attribution.textContent = 'Built by eLearningDesign.org';
+  container.appendChild(attribution);
+  
+  // Create emoji buttons
+  config.options.forEach(function(option, index) {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.gap = '4px';
+    
+    const btn = document.createElement('button');
+    btn.textContent = option.emoji;
+    btn.style.fontSize = config.emojiSize + 'px';
+    btn.style.padding = '0.5rem';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '0';
+    btn.style.backgroundColor = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.transition = 'all 0.2s';
+    btn.style.minWidth = '70px';
+    
+    btn.onmouseover = function() {
+      btn.style.transform = 'scale(1.1)';
+    };
+    
+    btn.onmouseout = function() {
+      btn.style.transform = 'scale(1)';
+    };
+    
+    btn.onclick = function() {
+      const allButtons = buttonsDiv.querySelectorAll('button');
+      allButtons.forEach(function(b) {
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      messageDiv.textContent = option.followUpMessage;
+      messageDiv.style.display = 'block';
+      if (option.sound && option.sound !== 'none') {
+        playSound(option.sound);
+      }
+    };
+    
+    wrapper.appendChild(btn);
+    
+    if (option.subtitle) {
+      const sub = document.createElement('span');
+      sub.textContent = option.subtitle;
+      sub.style.fontSize = Math.max(config.bodyFontSize - 4, 10) + 'px';
+      sub.style.color = config.bodyFontColor;
+      sub.style.fontFamily = config.bodyFontFamily;
+      wrapper.appendChild(sub);
+    }
+    
+    buttonsDiv.appendChild(wrapper);
+  });
+})();
+</script>
