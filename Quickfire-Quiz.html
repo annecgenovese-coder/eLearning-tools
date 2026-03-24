@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>Quickfire Quiz</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap');
+
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+
+            body, html {
+              width: 100%;
+              font-family: 'Raleway', sans-serif;
+              font-size: 20.7px;
+              background: #244e89;
+              color: #ffffff;
+              overflow-x: hidden;
+            }
+
+            .quiz-container {
+              width: 100%;
+              padding: 32px;
+              padding-top: 100px;
+              padding-bottom: 32px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: flex-start;
+              position: relative;
+            }
+
+            .quiz-header {
+              text-align: center;
+              margin-bottom: 2rem;
+            }
+
+            .quiz-title {
+              font-size: 2em;
+              font-weight: 700;
+              margin-bottom: 0.5rem;
+            }
+
+            .quiz-subtitle {
+              font-size: 1.1em;
+              opacity: 0.8;
+            }
+
+            .timer-container {
+              position: absolute;
+              width: 80px;
+              height: 80px;
+              transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+              z-index: 10;
+            }
+
+            .timer-circle {
+              width: 100%;
+              height: 100%;
+              border-radius: 50%;
+              background: rgba(0, 0, 0, 0.2);
+              backdrop-filter: blur(10px);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              position: relative;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .timer-circle svg {
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              transform: rotate(-90deg);
+            }
+
+            .timer-circle circle {
+              fill: none;
+              stroke-width: 4;
+            }
+
+            .timer-bg {
+              stroke: rgba(255, 255, 255, 0.2);
+            }
+
+            .timer-progress {
+              stroke: #FFC459;
+              stroke-linecap: round;
+              transition: stroke-dashoffset 1s linear;
+            }
+
+            .timer-text {
+              font-size: 1.2em;
+              font-weight: 700;
+              z-index: 1;
+            }
+
+            .sound-toggle {
+              position: absolute;
+              top: 20px;
+              right: 100px;
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: rgba(0, 0, 0, 0.2);
+              backdrop-filter: blur(10px);
+              border: none;
+              color: inherit;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.2s;
+              z-index: 20;
+            }
+
+            .sound-toggle:hover {
+              background: rgba(255, 255, 255, 0.2);
+            }
+
+            .sound-toggle svg {
+              width: 20px;
+              height: 20px;
+            }
+
+            .question-container {
+              background: rgba(0, 0, 0, 0.2);
+              backdrop-filter: blur(10px);
+              border-radius: 16px;
+              padding: 2rem;
+              max-width: 600px;
+              width: 100%;
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            }
+
+            .progress-bar {
+              height: 4px;
+              background: rgba(255, 255, 255, 0.2);
+              border-radius: 2px;
+              margin-bottom: 1.5rem;
+              overflow: hidden;
+            }
+
+            .progress-fill {
+              height: 100%;
+              background: #FFC459;
+              border-radius: 2px;
+              transition: width 0.3s ease;
+            }
+
+            .question-number {
+              font-size: 0.9em;
+              opacity: 0.7;
+              margin-bottom: 0.5rem;
+            }
+
+            .question-text {
+              font-size: 1.3em;
+              font-weight: 600;
+              margin-bottom: 1.5rem;
+              line-height: 1.4;
+            }
+
+            .answers-grid {
+              display: grid;
+              gap: 0.75rem;
+            }
+
+            .answer-button {
+              width: 100%;
+              padding: 1rem 1.25rem;
+              background: rgba(255, 255, 255, 0.1);
+              border: 2px solid rgba(255, 255, 255, 0.2);
+              border-radius: 12px;
+              color: inherit;
+              font-family: inherit;
+              font-size: 1em;
+              text-align: left;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            }
+
+            .answer-button:hover:not(:disabled) {
+              background: rgba(255, 255, 255, 0.2);
+              border-color: rgba(255, 255, 255, 0.4);
+              transform: translateX(4px);
+            }
+
+            .answer-button:disabled {
+              cursor: not-allowed;
+              opacity: 0.6;
+            }
+
+            .answer-button.correct {
+              background: #06b6d4;
+              border-color: #06b6d4;
+              color: #ffffff;
+              opacity: 1;
+            }
+
+            .answer-button.incorrect {
+              background: #ec4899;
+              border-color: #ec4899;
+              color: #ffffff;
+              opacity: 1;
+            }
+
+            .feedback {
+              margin-top: 1rem;
+              padding: 0.75rem;
+              border-radius: 8px;
+              font-weight: 500;
+              text-align: center;
+            }
+
+            .feedback.correct {
+              background: #06b6d433;
+              color: #06b6d4;
+            }
+
+            .feedback.incorrect {
+              background: #ec489933;
+              color: #ec4899;
+            }
+
+            .next-button {
+              margin-top: 1.5rem;
+              width: 100%;
+              padding: 1rem;
+              background: #FFC459;
+              border: none;
+              border-radius: 12px;
+              color: #0f172a;
+              font-family: inherit;
+              font-size: 1em;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            }
+
+            .next-button:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 20px #FFC45966;
+            }
+
+            .results-container {
+              text-align: center;
+            }
+
+            .score-display {
+              font-size: 4em;
+              font-weight: 700;
+              margin: 1rem 0;
+              color: #FFC459;
+            }
+
+            .score-label {
+              font-size: 1.2em;
+              opacity: 0.8;
+            }
+
+            .restart-button {
+              margin-top: 2rem;
+              padding: 1rem 2rem;
+              background: #FFC459;
+              border: none;
+              border-radius: 12px;
+              color: #0f172a;
+              font-family: inherit;
+              font-size: 1em;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s ease;
+            }
+
+            .restart-button:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 20px #FFC45966;
+            }
+
+            .times-up-overlay {
+              position: absolute;
+              inset: 0;
+              background: rgba(0, 0, 0, 0.8);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              z-index: 100;
+            }
+
+            .times-up-text {
+              font-size: 3em;
+              font-weight: 700;
+              color: #ef4444;
+              margin-bottom: 1rem;
+              animation: pulse 1s ease-in-out infinite;
+            }
+
+            @keyframes pulse {
+              0%, 100% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.8; transform: scale(1.05); }
+            }
+
+            .confetti-canvas {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              pointer-events: none;
+              z-index: 50;
+            }
+
+            .hidden {
+              display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div
+            class="quiz-container"
+            id="quizContainer"
+        >
+            <button
+                class="sound-toggle"
+                id="soundToggle"
+                title="Toggle sound"
+            >
+                <svg
+                    id="soundOnIcon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <polygon
+                        points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                    ></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+                <svg
+                    id="soundOffIcon"
+                    class="hidden"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <polygon
+                        points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
+                    ></polygon>
+                    <line
+                        x1="23"
+                        y1="9"
+                        x2="17"
+                        y2="15"
+                    ></line>
+                    <line
+                        x1="17"
+                        y1="9"
+                        x2="23"
+                        y2="15"
+                    ></line>
+                </svg>
+            </button>
+
+            <div
+                class="timer-container"
+                id="timerContainer"
+            >
+                <div class="timer-circle">
+                    <svg viewBox="0 0 80 80">
+                        <circle
+                            class="timer-bg"
+                            cx="40"
+                            cy="40"
+                            r="36"
+                        />
+                        <circle
+                            class="timer-progress"
+                            id="timerProgress"
+                            cx="40"
+                            cy="40"
+                            r="36"
+                            stroke-dasharray="226.2"
+                            stroke-dashoffset="0"
+                        />
+                    </svg>
+                    <span
+                        class="timer-text"
+                        id="timerText"
+                        >60</span
+                    >
+                </div>
+            </div>
+
+            <div
+                class="quiz-header"
+                id="quizHeader"
+            >
+                <h1 class="quiz-title">Quickfire Quiz</h1>
+                <p class="quiz-subtitle">
+                    Test your knowledge. Answer before the time runs out!
+                </p>
+            </div>
+
+            <div
+                class="question-container"
+                id="questionContainer"
+            >
+                <div class="progress-bar">
+                    <div
+                        class="progress-fill"
+                        id="progressFill"
+                    ></div>
+                </div>
+                <div
+                    class="question-number"
+                    id="questionNumber"
+                ></div>
+                <div
+                    class="question-text"
+                    id="questionText"
+                ></div>
+                <div
+                    class="answers-grid"
+                    id="answersGrid"
+                ></div>
+                <div
+                    class="feedback hidden"
+                    id="feedback"
+                ></div>
+                <button
+                    class="next-button hidden"
+                    id="tryAgainButton"
+                >
+                    Try Again
+                </button>
+                <button
+                    class="next-button hidden"
+                    id="nextButton"
+                >
+                    Next Question
+                </button>
+            </div>
+
+            <div
+                class="question-container results-container hidden"
+                id="resultsContainer"
+            >
+                <h2>Quiz Complete!</h2>
+                <div
+                    class="score-display"
+                    id="scoreDisplay"
+                >
+                    0/0
+                </div>
+                <p class="score-label">Questions Answered Correctly</p>
+                <button
+                    class="restart-button"
+                    id="restartButton"
+                >
+                    Play Again
+                </button>
+            </div>
+
+            <div
+                class="times-up-overlay hidden"
+                id="timesUpOverlay"
+            >
+                <div class="times-up-text">⏰ Time's Up!</div>
+                <p>Your final score: <span id="finalScore">0</span>/3</p>
+                <button
+                    class="restart-button"
+                    id="timesUpRestartButton"
+                >
+                    Play Again
+                </button>
+            </div>
+
+            <canvas
+                class="confetti-canvas"
+                id="confettiCanvas"
+            ></canvas>
+        </div>
+
+        <script>
+            (function() {
+              const questions = [{"question":"What is the capital of France?","answers":["London","Berlin","Paris","Madrid"],"correctIndex":2},{"question":"Which planet is known as the Red Planet?","answers":["Venus","Mars","Jupiter","Saturn"],"correctIndex":1},{"question":"What is 2 + 2?","answers":["3","4","5","6"],"correctIndex":1}];
+              const timerMode = 'total';
+              const totalSeconds = 30;
+              const timerMovement = 'randomEveryN';
+              const randomMoveInterval = 2;
+
+              let currentQuestion = 0;
+              let score = 0;
+              let timeRemaining = timerMode === 'total' ? totalSeconds : totalSeconds;
+              let timerInterval = null;
+              let moveInterval = null;
+              let shuffledQuestions = [];
+              let answered = false;
+
+              // Sound system
+              let soundEnabled = true;
+              let audioContext = null;
+
+              function initAudio() {
+                try {
+                  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                  console.warn('Web Audio API not supported');
+                }
+              }
+
+              function playTick() {
+                if (!soundEnabled || !audioContext) return;
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+              }
+
+              function playBuzzer() {
+                if (!soundEnabled || !audioContext) return;
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 200;
+                oscillator.type = 'sawtooth';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.8);
+              }
+
+              function playWoohoo() {
+                if (!soundEnabled || !audioContext) return;
+
+                // Create a celebratory sound with rising tones
+                const duration = 0.6;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+
+                notes.forEach((freq, i) => {
+                  const oscillator = audioContext.createOscillator();
+                  const gainNode = audioContext.createGain();
+
+                  oscillator.connect(gainNode);
+                  gainNode.connect(audioContext.destination);
+
+                  oscillator.frequency.value = freq;
+                  oscillator.type = 'sine';
+
+                  const startTime = audioContext.currentTime + (i * 0.12);
+                  gainNode.gain.setValueAtTime(0, startTime);
+                  gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+                  gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+                  oscillator.start(startTime);
+                  oscillator.stop(startTime + duration);
+                });
+              }
+
+              // Confetti system
+              let confettiParticles = [];
+              let confettiAnimationId = null;
+              const confettiCanvas = document.getElementById('confettiCanvas');
+              const confettiCtx = confettiCanvas.getContext('2d');
+              const confettiColors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
+
+              function resizeConfettiCanvas() {
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+              }
+
+              function createConfetti() {
+                confettiParticles = [];
+                for (let i = 0; i < 150; i++) {
+                  confettiParticles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    size: Math.random() * 10 + 5,
+                    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 4 - 2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                  });
+                }
+              }
+
+              function animateConfetti() {
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+                confettiParticles.forEach(p => {
+                  p.y += p.speedY;
+                  p.x += p.speedX;
+                  p.rotation += p.rotationSpeed;
+
+                  // Reset particle when it goes off screen
+                  if (p.y > confettiCanvas.height) {
+                    p.y = -p.size;
+                    p.x = Math.random() * confettiCanvas.width;
+                  }
+
+                  confettiCtx.save();
+                  confettiCtx.translate(p.x, p.y);
+                  confettiCtx.rotate(p.rotation * Math.PI / 180);
+                  confettiCtx.fillStyle = p.color;
+                  confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                  confettiCtx.restore();
+                });
+
+                confettiAnimationId = requestAnimationFrame(animateConfetti);
+              }
+
+              function startCelebration() {
+                playWoohoo();
+                resizeConfettiCanvas();
+                createConfetti();
+                animateConfetti();
+              }
+
+              function stopCelebration() {
+                if (confettiAnimationId) {
+                  cancelAnimationFrame(confettiAnimationId);
+                  confettiAnimationId = null;
+                }
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                confettiParticles = [];
+              }
+
+              window.addEventListener('resize', resizeConfettiCanvas);
+
+              function updateSoundIcon() {
+                document.getElementById('soundOnIcon').classList.toggle('hidden', !soundEnabled);
+                document.getElementById('soundOffIcon').classList.toggle('hidden', soundEnabled);
+              }
+
+              document.getElementById('soundToggle').onclick = function() {
+                soundEnabled = !soundEnabled;
+                updateSoundIcon();
+                if (soundEnabled && !audioContext) {
+                  initAudio();
+                }
+              };
+
+              const corners = [
+                { top: '20px', left: '20px', right: 'auto', bottom: 'auto' },
+                { top: '20px', right: '20px', left: 'auto', bottom: 'auto' },
+                { bottom: '20px', left: '20px', top: 'auto', right: 'auto' },
+                { bottom: '20px', right: '20px', top: 'auto', left: 'auto' }
+              ];
+              let currentCorner = 0;
+
+              function shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+              }
+
+              function initQuiz() {
+                if (soundEnabled && !audioContext) {
+                  initAudio();
+                }
+
+                // Stop any ongoing celebration
+                stopCelebration();
+
+                shuffledQuestions = shuffleArray(questions);
+                currentQuestion = 0;
+                score = 0;
+                timeRemaining = timerMode === 'total' ? totalSeconds : totalSeconds;
+                answered = false;
+
+                document.getElementById('questionContainer').classList.remove('hidden');
+                document.getElementById('resultsContainer').classList.add('hidden');
+                document.getElementById('timesUpOverlay').classList.add('hidden');
+                document.getElementById('quizHeader').classList.remove('hidden');
+
+                showQuestion();
+                startTimer();
+                initTimerPosition();
+              }
+
+              function initTimerPosition() {
+                const timer = document.getElementById('timerContainer');
+
+                if (timerMovement === 'fixed') {
+                  Object.assign(timer.style, corners[0]);
+                } else if (timerMovement === 'randomPerQuestion' || timerMovement === 'cycleCorners') {
+                  moveTimerToCorner();
+                } else if (timerMovement === 'randomEveryN') {
+                  moveTimerToRandomCorner();
+                  moveInterval = setInterval(moveTimerToRandomCorner, randomMoveInterval * 1000);
+                }
+              }
+
+              function moveTimerToCorner() {
+                const timer = document.getElementById('timerContainer');
+                if (timerMovement === 'cycleCorners') {
+                  currentCorner = (currentCorner + 1) % 4;
+                } else {
+                  currentCorner = Math.floor(Math.random() * 4);
+                }
+                Object.assign(timer.style, corners[currentCorner]);
+              }
+
+              function moveTimerToRandomCorner() {
+                const timer = document.getElementById('timerContainer');
+                const randomCorner = Math.floor(Math.random() * 4);
+                Object.assign(timer.style, corners[randomCorner]);
+              }
+
+              function showQuestion() {
+                if (currentQuestion >= shuffledQuestions.length) {
+                  showResults();
+                  return;
+                }
+
+                const q = shuffledQuestions[currentQuestion];
+                const shuffledAnswerIndices = shuffleArray([...Array(q.answers.length).keys()]);
+
+                document.getElementById('questionNumber').textContent =
+                  'Question ' + (currentQuestion + 1) + ' of ' + shuffledQuestions.length;
+                document.getElementById('questionText').textContent = q.question;
+                document.getElementById('progressFill').style.width =
+                  ((currentQuestion + 1) / shuffledQuestions.length * 100) + '%';
+
+                const grid = document.getElementById('answersGrid');
+                grid.innerHTML = '';
+
+                shuffledAnswerIndices.forEach((originalIndex) => {
+                  const btn = document.createElement('button');
+                  btn.className = 'answer-button';
+                  btn.textContent = q.answers[originalIndex];
+                  btn.dataset.index = originalIndex;
+                  btn.onclick = () => selectAnswer(originalIndex, q.correctIndex);
+                  grid.appendChild(btn);
+                });
+
+                document.getElementById('feedback').classList.add('hidden');
+                document.getElementById('nextButton').classList.add('hidden');
+                answered = false;
+
+                if (timerMode === 'perQuestion') {
+                  timeRemaining = totalSeconds;
+                  updateTimerDisplay();
+                }
+
+                if (timerMovement === 'randomPerQuestion' || timerMovement === 'cycleCorners') {
+                  moveTimerToCorner();
+                }
+              }
+
+              function selectAnswer(selected, correct) {
+                if (answered) return;
+
+                const buttons = document.querySelectorAll('.answer-button');
+                const feedback = document.getElementById('feedback');
+                const nextButton = document.getElementById('nextButton');
+
+                if (selected === correct) {
+                  // Correct answer - mark as answered, show feedback, auto-advance
+                  answered = true;
+                  score++;
+
+                  buttons.forEach(btn => {
+                    btn.disabled = true;
+                    const idx = parseInt(btn.dataset.index);
+                    if (idx === correct) {
+                      btn.classList.add('correct');
+                    }
+                  });
+
+                  feedback.classList.remove('hidden', 'correct', 'incorrect');
+                  feedback.classList.add('correct');
+                  feedback.textContent = '✓ Correct!';
+
+                  // Auto-advance to next question after a short delay
+                  setTimeout(() => {
+                    nextQuestion();
+                  }, 1200);
+                } else {
+                  // Wrong answer - show try again button
+                  buttons.forEach(btn => {
+                    btn.disabled = true;
+                    const idx = parseInt(btn.dataset.index);
+                    if (idx === selected) {
+                      btn.classList.add('incorrect');
+                    }
+                  });
+
+                  feedback.classList.remove('hidden', 'correct', 'incorrect');
+                  feedback.classList.add('incorrect');
+                  feedback.textContent = '✗ Incorrect!';
+
+                  // Show try again button
+                  document.getElementById('tryAgainButton').classList.remove('hidden');
+                  nextButton.classList.add('hidden');
+                }
+              }
+
+              function retryQuestion() {
+                // Reset the current question for another attempt
+                document.getElementById('tryAgainButton').classList.add('hidden');
+                document.getElementById('feedback').classList.add('hidden');
+                showQuestion();
+              }
+
+              function nextQuestion() {
+                currentQuestion++;
+                if (currentQuestion >= shuffledQuestions.length) {
+                  showResults();
+                } else {
+                  showQuestion();
+                }
+              }
+
+              function showResults() {
+                clearInterval(timerInterval);
+                if (moveInterval) clearInterval(moveInterval);
+
+                document.getElementById('questionContainer').classList.add('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+                document.getElementById('quizHeader').classList.add('hidden');
+                document.getElementById('scoreDisplay').textContent = score + '/' + shuffledQuestions.length;
+
+                // Start celebration!
+                startCelebration();
+              }
+
+              function showTimesUp() {
+                clearInterval(timerInterval);
+                if (moveInterval) clearInterval(moveInterval);
+
+                playBuzzer();
+
+                document.getElementById('timesUpOverlay').classList.remove('hidden');
+                document.getElementById('finalScore').textContent = score;
+              }
+
+              function startTimer() {
+                updateTimerDisplay();
+                timerInterval = setInterval(() => {
+                  timeRemaining--;
+                  updateTimerDisplay();
+
+                  // Play tick sound
+                  if (timeRemaining > 0) {
+                    playTick();
+                  }
+
+                  if (timeRemaining <= 0) {
+                    if (timerMode === 'total') {
+                      showTimesUp();
+                    } else {
+                      playBuzzer();
+                      if (!answered) {
+                        selectAnswer(-1, shuffledQuestions[currentQuestion].correctIndex);
+                      }
+                      setTimeout(() => {
+                        currentQuestion++;
+                        if (currentQuestion >= shuffledQuestions.length) {
+                          showResults();
+                        } else {
+                          showQuestion();
+                        }
+                      }, 1500);
+                    }
+                  }
+                }, 1000);
+              }
+
+              function updateTimerDisplay() {
+                const maxTime = timerMode === 'total' ? totalSeconds : totalSeconds;
+                const circumference = 2 * Math.PI * 36;
+                const offset = circumference - (timeRemaining / maxTime) * circumference;
+
+                document.getElementById('timerProgress').style.strokeDashoffset = offset;
+                document.getElementById('timerText').textContent = timeRemaining;
+
+                if (timeRemaining <= 10) {
+                  document.getElementById('timerProgress').style.stroke = '#ef4444';
+                } else {
+                  document.getElementById('timerProgress').style.stroke = '#FFC459';
+                }
+              }
+
+              document.getElementById('nextButton').onclick = nextQuestion;
+              document.getElementById('tryAgainButton').onclick = retryQuestion;
+              document.getElementById('restartButton').onclick = initQuiz;
+              document.getElementById('timesUpRestartButton').onclick = initQuiz;
+
+              updateSoundIcon();
+              initQuiz();
+            })();
+        </script>
+    </body>
+</html>
