@@ -1,0 +1,188 @@
+<!-- Checklist Block: checklist-1 -->
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<div id="clb-checklist-1" style="font-family:'Source Sans Pro', sans-serif;font-size:18px;color:#ffffff;background:#004a87;padding:20px 24px;max-width:760px;margin:0 auto;box-sizing:border-box;">
+<style>
+#clb-checklist-1 *{box-sizing:border-box}
+#clb-checklist-1 h2{font-family:'Source Sans Pro', sans-serif;font-size:24px;font-weight:700;margin:0 0 4px}
+#clb-checklist-1 .cl-sub{opacity:.7;font-size:17px;margin:0 0 16px}
+#clb-checklist-1 .cl-prog-wrap{margin-bottom:16px}
+#clb-checklist-1 .cl-prog-info{display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px}
+#clb-checklist-1 .cl-prog-bar{height:8px;border-radius:4px;background:rgba(0,0,0,.08);overflow:hidden}
+#clb-checklist-1 .cl-prog-fill{height:100%;border-radius:4px;background:#2aa88a;transition:width .3s}
+#clb-checklist-1 .cl-sec{margin-bottom:16px}
+#clb-checklist-1 .cl-sec h3{font-weight:600;font-size:19px;margin:0 0 8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:4px}
+#clb-checklist-1 .cl-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;cursor:pointer}
+#clb-checklist-1 .cl-item:hover{background:rgba(0,0,0,.02);border-radius:6px;padding-left:4px;padding-right:4px}
+#clb-checklist-1 .cl-item input[type=checkbox]{margin-top:3px;accent-color:#2aa88a;cursor:pointer}
+#clb-checklist-1 .cl-item label{cursor:pointer;flex:1}
+#clb-checklist-1 .cl-item.checked label{text-decoration:line-through;opacity:.55}
+#clb-checklist-1 .cl-ref textarea{width:100%;min-height:80px;border-radius:8px;border:1px solid rgba(0,0,0,.15);padding:8px;font-family:'Source Sans Pro', sans-serif;font-size:17px;resize:vertical;background:rgba(0,0,0,.02)}
+#clb-checklist-1 .cl-ref textarea:focus{outline:2px solid #2aa88a;outline-offset:1px}
+#clb-checklist-1 .cl-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:rgba(0,0,0,.04);font-size:17px;cursor:pointer;font-family:'Source Sans Pro', sans-serif}
+#clb-checklist-1 .cl-btn:hover{background:rgba(0,0,0,.08)}
+#clb-checklist-1 .cl-btn:focus-visible{outline:2px solid #2aa88a;outline-offset:2px}
+#clb-checklist-1 .cl-done{margin-top:12px;padding:12px;border-radius:8px;background:rgba(42,168,138,.1);text-align:center;font-weight:600;color:#2aa88a}
+</style>
+
+<h2>Onboarding checklist </h2>
+<p class="cl-sub">Transform your user onboarding to be a growth engine. </p>
+
+<div class="cl-prog-wrap">
+  <div class="cl-prog-info">
+    <span id="clb-checklist-1-count">0 of 17 complete</span>
+    <span id="clb-checklist-1-pct">0%</span>
+  </div>
+  <div class="cl-prog-bar"><div class="cl-prog-fill" id="clb-checklist-1-bar" style="width:0%"></div></div>
+</div>
+
+<div id="clb-checklist-1-sections"></div>
+
+<div class="cl-ref" style="margin-top:16px">
+  <label style="display:block;font-weight:600;margin-bottom:4px;font-size:17px" for="clb-checklist-1-ref">Reflection</label>
+  <textarea id="clb-checklist-1-ref" placeholder="Type your reflection here…" aria-label="Reflection"></textarea>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap" role="toolbar">
+  <button type="button" class="cl-btn" onclick="document.getElementById('clb-checklist-1').clPrint()" aria-label="Download PDF">📄 Download PDF</button>
+  <button type="button" class="cl-btn" onclick="document.getElementById('clb-checklist-1').clReset()" aria-label="Reset checklist">🔄 Reset</button>
+</div>
+
+<div id="clb-checklist-1-done" class="cl-done" style="display:none" role="status" aria-live="polite">🎉 All tasks complete!</div>
+
+<script>
+(function(){
+  var BID="checklist-1";
+  var el=document.getElementById("clb-"+BID);
+  var sections=[{"heading":"1. Pre-signup ","items":[{"id":"s1-1","text":"Does messaging demonstrate considerable benefits to users? "},{"id":"s1-2","text":"Are these benefits relatable? Can users understand how your product would improve their current situation "},{"id":"s1-3","text":"Tailored objection handling "},{"id":"s1-4","text":"Validation - customer reviews, real-life examples, testimonials & feedback "},{"id":"s1-5","text":"Establish if there are any potential friction points. If so, remove them! "}]},{"heading":"2. At the point of sign-up ","items":[{"id":"s2-1","text":"Only necessary fields included on the signup form - make it an easy experience "},{"id":"s2-2","text":"Establish if there are any potential friction points in the sign-up flow. If so, remove them! "},{"id":"s2-3","text":"Include a progress tracker to the signup flow so users are aware of the length of the process "},{"id":"s2-4","text":"Customer service is key - ensure you have live chat or similar for real-time help during signup "}]},{"heading":"3. First product interaction/experience ","items":[{"id":"s3-1","text":"New users receive a welcome message on the first login "},{"id":"s3-2","text":"An 'easy win' can be achieved in a few steps during the first product interaction "},{"id":"s3-3","text":"Users have visibility on how they will gain value from the product from the first interaction "},{"id":"s3-4","text":"Product tours are meaningful and not just a 'show and tell' "},{"id":"s3-5","text":"Gamify the first experience with a checklist or onboarding tools "},{"id":"s3-6","text":"Onboarding emails are relevant and timely - don't overdo it "},{"id":"s3-7","text":"Onboarding emails help users get value from the product "},{"id":"s3-8","text":"Customer service is key - ensure you have live chat or similar for real-time help during onboarding "}]}];
+  var total=17;
+  var autoComplete=true;
+  var showReflection=true;
+  var title="Onboarding checklist ";
+
+  // Checklist signature for storage key versioning
+  var checklistSignature=JSON.stringify(sections).length;
+  var SKEY="eldChecklist:"+BID+":"+checklistSignature;
+
+  // SCORM helper
+  var scormAPI=null;
+  function findAPI(w){try{if(w.API)return w.API;if(w.API_1484_11)return w.API_1484_11;if(w.parent&&w.parent!==w)return findAPI(w.parent);if(w.opener)return findAPI(w.opener)}catch(e){}return null}
+  function initSCORM(){scormAPI=findAPI(window);if(scormAPI){try{if(scormAPI.Initialize)scormAPI.Initialize("");else if(scormAPI.LMSInitialize)scormAPI.LMSInitialize("")}catch(e){}}}
+  function getSuspend(){
+    if(scormAPI){try{var d=scormAPI.GetValue?scormAPI.GetValue("cmi.suspend_data"):scormAPI.LMSGetValue("cmi.suspend_data");if(d){var all=JSON.parse(d);if(all[SKEY])return all[SKEY]}}catch(e){}}
+    try{var d=localStorage.getItem(SKEY);return d?JSON.parse(d):null}catch(e){}return null
+  }
+  function setSuspend(obj){
+    obj.lastUpdated=new Date().toISOString();
+    if(scormAPI){try{var raw="";try{raw=scormAPI.GetValue?scormAPI.GetValue("cmi.suspend_data"):scormAPI.LMSGetValue("cmi.suspend_data")}catch(e){}var all={};try{all=JSON.parse(raw||"{}")}catch(e){}all[SKEY]=obj;var s=JSON.stringify(all);if(scormAPI.SetValue)scormAPI.SetValue("cmi.suspend_data",s);else scormAPI.LMSSetValue("cmi.suspend_data",s);commitSCORM()}catch(e){}}
+    try{localStorage.setItem(SKEY,JSON.stringify(obj))}catch(e){}
+  }
+  function clearSuspend(){
+    if(scormAPI){try{var raw="";try{raw=scormAPI.GetValue?scormAPI.GetValue("cmi.suspend_data"):scormAPI.LMSGetValue("cmi.suspend_data")}catch(e){}var all={};try{all=JSON.parse(raw||"{}")}catch(e){}delete all[SKEY];var s=JSON.stringify(all);if(scormAPI.SetValue)scormAPI.SetValue("cmi.suspend_data",s);else scormAPI.LMSSetValue("cmi.suspend_data",s);commitSCORM()}catch(e){}}
+    try{localStorage.removeItem(SKEY)}catch(e){}
+  }
+  function commitSCORM(){if(scormAPI){try{if(scormAPI.Commit)scormAPI.Commit("");else if(scormAPI.LMSCommit)scormAPI.LMSCommit("")}catch(e){}}}
+  function setComplete(){
+    if(!scormAPI)return;
+    try{
+      if(scormAPI.SetValue){scormAPI.SetValue("cmi.completion_status","completed");scormAPI.SetValue("cmi.score.raw","100")}
+      else{scormAPI.LMSSetValue("cmi.core.lesson_status","completed");scormAPI.LMSSetValue("cmi.core.score.raw","100")}
+      commitSCORM()
+    }catch(e){}
+  }
+
+  // State
+  var checked={};
+  var reflection="";
+  initSCORM();
+  var saved=getSuspend();
+  if(saved){checked=saved.checked||{};reflection=saved.reflection||""}
+
+  // Render sections
+  var container=document.getElementById("clb-"+BID+"-sections");
+  function renderSections(){
+    var html="";
+    sections.forEach(function(sec){
+      html+='<div class="cl-sec"><h3>'+esc(sec.heading)+'</h3>';
+      sec.items.forEach(function(item){
+        var c=checked[item.id]?"checked":"";
+        var ch=checked[item.id]?"checked":"";
+        html+='<div class="cl-item '+c+'" data-id="'+esc(item.id)+'">';
+        html+='<input type="checkbox" id="clb-'+BID+'-'+esc(item.id)+'" '+ch+' aria-labelledby="lbl-'+BID+'-'+esc(item.id)+'">';
+        html+='<label id="lbl-'+BID+'-'+esc(item.id)+'" for="clb-'+BID+'-'+esc(item.id)+'">'+esc(item.text)+'</label></div>';
+      });
+      html+='</div>';
+    });
+    container.innerHTML=html;
+  }
+  renderSections();
+
+  // Reflection
+  if(showReflection){
+    var refEl=document.getElementById("clb-"+BID+"-ref");
+    if(refEl){refEl.value=reflection;refEl.addEventListener("input",function(){reflection=refEl.value;save()})}
+  }
+
+  // Events
+  container.addEventListener("change",function(e){
+    if(e.target.type==="checkbox"){
+      var row=e.target.closest(".cl-item");
+      var id=row.getAttribute("data-id");
+      if(e.target.checked){checked[id]=true;row.classList.add("checked")}
+      else{delete checked[id];row.classList.remove("checked")}
+      update();save();
+    }
+  });
+
+  function countChecked(){return Object.keys(checked).length}
+  function update(){
+    var n=countChecked();
+    var pct=total?Math.round(n/total*100):0;
+    document.getElementById("clb-"+BID+"-count").textContent=n+" of "+total+" complete";
+    document.getElementById("clb-"+BID+"-pct").textContent=pct+"%";
+    document.getElementById("clb-"+BID+"-bar").style.width=pct+"%";
+    var doneEl=document.getElementById("clb-"+BID+"-done");
+    if(pct===100){doneEl.style.display="block";if(autoComplete)setComplete()}else{doneEl.style.display="none"}
+  }
+  function save(){setSuspend({checked:checked,reflection:reflection})}
+  function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+  update();
+
+  // Print PDF via new window
+  el.clPrint=function(){
+    var n=countChecked();
+    var pct=total?Math.round(n/total*100):0;
+    var h='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(title)+' - PDF</title>';
+    h+='<style>body{font-family:\'Source Sans Pro\', sans-serif; font-size:18px;color:#ffffff;padding:24px;max-width:700px;margin:0 auto}';
+    h+='h1{font-size:26px;margin:0 0 4px} .sub{opacity:.7;font-size:17px;margin:0 0 12px}';
+    h+='.meta{font-size:16px;color:#666;margin-bottom:16px} .sec{margin-bottom:14px} .sec h2{font-size:20px;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:4px;margin:0 0 6px}';
+    h+='.item{padding:3px 0;font-size:18px} .item .mark{color:#2aa88a;font-weight:700;margin-right:6px} .item .unmark{opacity:.3;margin-right:6px}';
+    h+='.ref{margin-top:16px;padding:10px;border:1px solid #ddd;border-radius:6px;white-space:pre-wrap;font-size:17px}</style></head><body>';
+    h+='<h1>'+esc(title)+'</h1>';
+    h+='<p class="sub">Transform your user onboarding to be a growth engine. </p>';
+    h+='<div class="meta">Date: '+new Date().toLocaleString()+' &bull; Progress: '+pct+'% ('+n+' of '+total+')</div>';
+    sections.forEach(function(sec){
+      h+='<div class="sec"><h2>'+esc(sec.heading)+'</h2>';
+      sec.items.forEach(function(item){
+        var done=checked[item.id];
+        h+='<div class="item"><span class="'+(done?'mark':'unmark')+'">'+(done?'✓':'☐')+'</span>'+esc(item.text)+'</div>';
+      });
+      h+='</div>';
+    });
+    if(showReflection&&reflection){h+='<div class="ref"><strong>Reflection:</strong><br>'+esc(reflection)+'</div>'}
+    h+='</body></html>';
+    var w=window.open('','_blank');
+    if(w){w.document.write(h);w.document.close();setTimeout(function(){w.print()},400)}
+  };
+
+  el.clReset=function(){
+    if(!confirm("Reset all progress? This cannot be undone."))return;
+    checked={};reflection="";
+    clearSuspend();
+    renderSections();
+    if(showReflection){var r=document.getElementById("clb-"+BID+"-ref");if(r)r.value=""}
+    update();
+  };
+})();
+</script>
+</div>
