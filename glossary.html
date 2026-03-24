@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -110,17 +109,6 @@
 @keyframes glossary_fdsxm7-fadein { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
-<script>
-  function sendHeight() {
-    window.parent.postMessage({ height: document.body.scrollHeight }, '*');
-  }
-  window.addEventListener('load', sendHeight);
-  window.addEventListener('resize', sendHeight);
-
-  // Also fire when accordions open/close
-  var observer = new MutationObserver(sendHeight);
-  observer.observe(document.body, { childList: true, subtree: true });
-</script>
 <body>
 <div id="glossary_fdsxm7">
 <div class="g-header">
