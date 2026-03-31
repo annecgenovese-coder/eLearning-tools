@@ -7,9 +7,10 @@
 <style>
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Poppins",sans-serif}
-#ws-root{font-size:18px;color:#1a1a2e;background:#bde6f6;max-width:100%;padding:16px;user-select:none;-webkit-user-select:none;text-align:center}
-.ws-title{font-family:"Poppins",sans-serif;font-size:32px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:16px}
+body{font-family:"Arial",sans-serif}
+#ws-root{font-size:16px;color:#1a1a2e;background:#bde6f6;max-width:100%;padding:16px;user-select:none;-webkit-user-select:none;text-align:center}
+.ws-title{font-family:"Arial",sans-serif;font-size:30px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:4px}
+.ws-subtitle{font-family:"Montserrat",sans-serif;font-size:20px;font-weight:400;color:#1a1a2e;text-align:center;margin-bottom:16px}
 .ws-grid{display:inline-grid;grid-template-columns:repeat(10,36px);gap:2px;cursor:pointer}
 .ws-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;border-radius:4px;background:rgba(0,0,0,0.04);transition:background 0.15s;position:relative}
 .ws-cell:hover{background:rgba(0,0,0,0.08)}
@@ -31,14 +32,14 @@ body{font-family:"Poppins",sans-serif}
 .ws-wordtag.found{background:#06d6a0;color:#fff;text-decoration:line-through}
 .ws-wordtag.revealed{background:#118ab2;color:#fff;font-style:italic}
 .ws-discovered{margin-top:16px;border-top:1px solid rgba(0,0,0,0.1);padding-top:12px;max-width:600px;margin-left:auto;margin-right:auto;}
-.ws-discovered h3{font-size:25px;font-weight:700;margin-bottom:10px;text-align:center}
-.ws-def-item{padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:18px;line-height:1.5;text-align:left}
+.ws-discovered h3{font-size:22px;font-weight:700;margin-bottom:10px;text-align:center}
+.ws-def-item{padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:16px;line-height:1.5;text-align:left}
 .ws-def-word{font-weight:700}
 .ws-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:flex;align-items:center;justify-content:center;animation:fadein 0.2s}
-.ws-popup{position:relative;background:#fff;color:#333;padding:32px 40px;border-radius:12px;font-size:18px;z-index:1000;max-width:90%;width:432px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:popscale 0.25s}
-.ws-popup-word{font-size:29px;font-weight:700;margin-bottom:9px}
-.ws-popup-def{font-size:18px;line-height:1.5;color:#555;text-align:left}
-.ws-popup-close{margin-top:18px;padding:9px 27px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:18px;font-weight:600;cursor:pointer;transition:opacity 0.15s}
+.ws-popup{position:relative;background:#fff;color:#333;padding:29px 35px;border-radius:12px;font-size:16px;z-index:1000;max-width:90%;width:384px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:popscale 0.25s}
+.ws-popup-word{font-size:26px;font-weight:700;margin-bottom:8px}
+.ws-popup-def{font-size:16px;line-height:1.5;color:#555;text-align:left}
+.ws-popup-close{margin-top:16px;padding:8px 24px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:opacity 0.15s}
 .ws-popup-close:hover{opacity:0.85}
 .ws-popup-close:focus{outline:2px solid #ffd166;outline-offset:2px}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -52,6 +53,7 @@ body{font-family:"Poppins",sans-serif}
 <body>
 <div id="ws-root" role="application" aria-label="Word Search Puzzle">
 <div class="ws-title">eLearning Design Vocabulary</div>
+<div class="ws-subtitle">Click and drag to find and highlight the hidden vocabulary terms.  </div>
 <div class="ws-header">
 <div class="ws-controls" id="ws-controls"></div>
 <div class="ws-timer" id="ws-timer" ></div>
@@ -64,10 +66,10 @@ body{font-family:"Poppins",sans-serif}
 </div>
 <script>
 (function(){
-var grid=[["C","R","U","M","K","N","O","L","K","G"],["F","N","H","R","G","P","E","N","E","T"],["Z","H","I","I","E","A","O","D","R","B"],["V","D","S","N","R","W","U","A","W","M"],["C","E","U","N","L","C","I","X","W","O"],["D","Q","I","E","A","N","D","C","Y","C"],["A","N","D","T","I","W","Z","V","A","G"],["G","G","I","N","Y","M","A","R","V","Z"],["E","O","G","S","B","O","R","Q","P","Z"],["N","F","J","Q","A","U","O","N","W","A"]];
-var words=[{"w":"EDUCATION","d":"The systematic process of receiving instruction","h":"Related to school","c":[{"row":1,"col":8},{"row":2,"col":7},{"row":3,"col":6},{"row":4,"col":5},{"row":5,"col":4},{"row":6,"col":3},{"row":7,"col":2},{"row":8,"col":1},{"row":9,"col":0}],"n":"EDUCATION"},{"w":"KNOWLEDGE","d":"Facts, information, and skills acquired through experience","h":"What you gain from learning","c":[{"row":0,"col":8},{"row":1,"col":7},{"row":2,"col":6},{"row":3,"col":5},{"row":4,"col":4},{"row":5,"col":3},{"row":6,"col":2},{"row":7,"col":1},{"row":8,"col":0}],"n":"KNOWLEDGE"},{"w":"LEARNING","d":"The process of acquiring new knowledge or skills","h":"Starts with L","c":[{"row":0,"col":7},{"row":1,"col":6},{"row":2,"col":5},{"row":3,"col":4},{"row":4,"col":3},{"row":5,"col":2},{"row":6,"col":1},{"row":7,"col":0}],"n":"LEARNING"},{"w":"TRAINING","d":"The action of teaching a person a particular skill","h":"On-the-job ___","c":[{"row":1,"col":9},{"row":2,"col":8},{"row":3,"col":7},{"row":4,"col":6},{"row":5,"col":5},{"row":6,"col":4},{"row":7,"col":3},{"row":8,"col":2}],"n":"TRAINING"},{"w":"DESIGN","d":"A plan or blueprint for creating something","h":"Has 6 letters","c":[{"row":5,"col":0},{"row":4,"col":1},{"row":3,"col":2},{"row":2,"col":3},{"row":1,"col":4},{"row":0,"col":5}],"n":"DESIGN"}];
+var grid=[["Y","K","T","K","K","V","J","V","D","X"],["G","G","N","I","N","R","A","E","L","L"],["G","E","G","D","E","L","W","O","N","K"],["A","N","Y","D","B","S","C","X","B","C"],["D","R","I","F","N","I","V","J","O","V"],["Z","E","L","N","O","V","Y","W","M","Q"],["D","C","S","G","I","M","L","O","Q","S"],["S","N","O","I","T","A","C","U","D","E"],["I","N","W","S","G","B","R","Y","X","S"],["K","E","N","L","T","N","H","T","Z","C"]];
+var words=[{"w":"EDUCATION","d":"The systematic process of receiving instruction","h":"Related to school","c":[{"row":7,"col":9},{"row":7,"col":8},{"row":7,"col":7},{"row":7,"col":6},{"row":7,"col":5},{"row":7,"col":4},{"row":7,"col":3},{"row":7,"col":2},{"row":7,"col":1}],"n":"EDUCATION"},{"w":"KNOWLEDGE","d":"Facts, information, and skills acquired through experience","h":"What you gain from learning","c":[{"row":2,"col":9},{"row":2,"col":8},{"row":2,"col":7},{"row":2,"col":6},{"row":2,"col":5},{"row":2,"col":4},{"row":2,"col":3},{"row":2,"col":2},{"row":2,"col":1}],"n":"KNOWLEDGE"},{"w":"LEARNING","d":"The process of acquiring new knowledge or skills","h":"Starts with L","c":[{"row":1,"col":8},{"row":1,"col":7},{"row":1,"col":6},{"row":1,"col":5},{"row":1,"col":4},{"row":1,"col":3},{"row":1,"col":2},{"row":1,"col":1}],"n":"LEARNING"},{"w":"TRAINING","d":"The action of teaching a person a particular skill","h":"On-the-job ___","c":[{"row":9,"col":7},{"row":8,"col":6},{"row":7,"col":5},{"row":6,"col":4},{"row":5,"col":3},{"row":4,"col":2},{"row":3,"col":1},{"row":2,"col":0}],"n":"TRAINING"},{"w":"DESIGN","d":"A plan or blueprint for creating something","h":"Has 6 letters","c":[{"row":4,"col":0},{"row":5,"col":1},{"row":6,"col":2},{"row":7,"col":3},{"row":8,"col":4},{"row":9,"col":5}],"n":"DESIGN"}];
 var size=10;
-var cfg={pid:"ws_s8is4x24",timer:true,hint:true,revealLetter:false,revealWord:true,reset:true,sound:"chime",showList:true};
+var cfg={pid:"ws_198zf9ni",timer:true,hint:true,revealLetter:false,revealWord:true,reset:true,sound:"chime",showList:true};
 var state={found:[],revealed:[],discovered:[],elapsed:0,soundOn:true};
 var startCell=null,selecting=[],timerInt=null,scorm=null;
 var D=document,gel=function(id){return D.getElementById(id)};
