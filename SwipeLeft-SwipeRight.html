@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Swipe Left / Swipe Right</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#f8f8f8;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.container{width:100%;max-width:360px;margin:0 auto}
+.phone-frame{background:#111;border-radius:36px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.3),inset 0 0 0 2px #333}
+.phone-notch{width:60px;height:6px;border-radius:3px;background:#333;margin:4px auto 8px}
+.phone-inner{border-radius:24px;overflow:hidden;height:540px}
+.app{background:#f8f8f8;padding:24px 16px;min-height:100%;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
+.title{font-size:20px;font-weight:700;color:#A00056;text-align:center;margin-bottom:4px}
+.instruction{font-size:13px;color:#666;text-align:center;margin-bottom:20px;max-width:300px}
+.count{font-size:12px;color:#999;margin-bottom:12px}
+.card-stack{position:relative;width:280px;height:260px;margin:0 auto}
+.card{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:16px;cursor:grab;user-select:none;-webkit-user-select:none;transition:transform .4s cubic-bezier(.175,.885,.32,1.275)}
+.card.dragging{transition:none;cursor:grabbing}
+.card-inner{background:#ffffff;border-radius:16px;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.card-img{width:80px;height:80px;object-fit:cover;border-radius:12px}
+.card-text{font-size:17px;line-height:1.55;text-align:center;color:#1a1a1a;font-weight:500}
+.glow-green,.glow-red{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:10;opacity:0;transition:opacity .1s}
+.glow-green{border:3px solid #16a34a;box-shadow:0 0 30px #16a34a40}
+.glow-red{border:3px solid #dc2626;box-shadow:0 0 30px #dc262640}
+.label{position:absolute;top:20px;z-index:11;padding:6px 16px;border-radius:8px;font-weight:700;font-size:18px;letter-spacing:2px;opacity:0}
+.label-green{right:20px;border:3px solid #16a34a;color:#16a34a;transform:rotate(-15deg)}
+.label-red{left:20px;border:3px solid #dc2626;color:#dc2626;transform:rotate(15deg)}
+.hints{display:flex;justify-content:space-between;width:280px;margin-top:18px;font-size:12px}
+.hint-red{display:flex;align-items:center;gap:4px;color:#dc2626}
+.hint-green{display:flex;align-items:center;gap:4px;color:#16a34a}
+.feedback-toast{position:absolute;bottom:20px;left:16px;right:16px;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.4;box-shadow:0 8px 30px rgba(0,0,0,.2);animation:fadeUp .3s ease;z-index:20}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.scorecard{text-align:center;width:100%;padding:10px 0}
+.score-circle{width:80px;height:80px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700}
+.score-title{font-size:18px;margin:0 0 16px;color:#1a1a1a}
+.results{max-height:200px;overflow-y:auto;padding:0 8px}
+.result-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #eee;text-align:left}
+.result-icon{flex-shrink:0;width:24px;height:24px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:2px}
+.result-text{font-size:13px;color:#1a1a1a}
+.result-feedback{font-size:11px;color:#666;margin-top:3px}
+.btn{margin-top:18px;padding:10px 28px;border-radius:10px;background:#A00056;color:#fff;border:none;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
+.btn:hover{opacity:.9}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="phone-frame"><div class="phone-notch"></div><div class="phone-inner">
+<div class="app" id="app">
+  <h2 class="title">Swipe Left / Swipe Right</h2>
+  <p class="instruction">Swipe right if the behavior is acceptable. Swipe left if it&#39;s a red flag.</p>
+  <div id="game-area">
+    <div class="count" id="counter">1 / 4</div>
+    <div class="card-stack" id="stack"></div>
+    <div class="hints">
+      <span class="hint-red"><span style="font-size:18px">🚩</span> Swipe left</span>
+      <span class="hint-green">Swipe right <span style="font-size:18px">✅</span></span>
+    </div>
+  </div>
+  <div id="feedback-area"></div>
+  <div id="scorecard" class="scorecard hidden"></div>
+</div>
+</div></div>
+</div>
+<script>
+(function(){
+var CARDS=[{"text":"A coworker shares confidential client data in a group chat to 'save time.'","imageUrl":"","correctAnswer":"red","feedback":"Sharing confidential data outside secure channels violates data protection policies."},{"text":"You notice a safety hazard and immediately report it to your supervisor.","imageUrl":"","correctAnswer":"green","feedback":"Prompt reporting of hazards helps keep everyone safe."},{"text":"A manager asks you to backdate a document to meet a compliance deadline.","imageUrl":"","correctAnswer":"red","feedback":"Backdating documents is falsification and a serious compliance violation."},{"text":"Before sharing a file externally, you verify the recipient is authorized to receive it.","imageUrl":"","correctAnswer":"green","feedback":"Verifying authorization before sharing protects sensitive information."}];
+var MODE="instant";
+var GREEN="#16a34a";
+var RED="#dc2626";
+var SCORECARD_TITLE="Your Results";
+var idx=0,results=[],locked=false;
+var mmHandler=null,muHandler=null,tmHandler=null,teHandler=null;
+var stack=document.getElementById("stack"),counter=document.getElementById("counter"),
+  gameArea=document.getElementById("game-area"),fbArea=document.getElementById("feedback-area"),
+  scoreEl=document.getElementById("scorecard");
+
+function escHtml(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+function cleanupListeners(){
+  if(mmHandler){window.removeEventListener("mousemove",mmHandler);mmHandler=null;}
+  if(muHandler){window.removeEventListener("mouseup",muHandler);muHandler=null;}
+  if(tmHandler){window.removeEventListener("touchmove",tmHandler);tmHandler=null;}
+  if(teHandler){window.removeEventListener("touchend",teHandler);teHandler=null;}
+}
+
+function renderStack(){
+  cleanupListeners();
+  stack.innerHTML="";
+  var show=CARDS.slice(idx,idx+3);
+  var reversed=show.slice().reverse();
+  for(var i=0;i<reversed.length;i++){
+    var si=reversed.length-1-i;
+    var c=reversed[i];
+    var el=document.createElement("div");
+    el.className="card";
+    el.style.cssText="top:"+si*6+"px;left:"+si*4+"px;right:"+si*4+"px;z-index:"+(10-si)+";opacity:"+(si>1?.5:1);
+    var inner="<div class=\"glow-green\"></div><div class=\"glow-red\"></div>"
+      +"<div class=\"label label-green\">GREEN FLAG</div><div class=\"label label-red\">RED FLAG</div>"
+      +"<div class=\"card-inner\">"
+      +(c.imageUrl?"<img class=\"card-img\" src=\""+escHtml(c.imageUrl)+"\" alt=\"\">":"")
+      +"<p class=\"card-text\">"+escHtml(c.text)+"</p></div>";
+    el.innerHTML=inner;
+    stack.appendChild(el);
+    if(si===0) setupDrag(el,c);
+  }
+}
+
+function setupDrag(el,card){
+  var sx=0,sy=0,dx=0,dy=0,dragging=false;
+  var glowG=el.querySelector(".glow-green"),glowR=el.querySelector(".glow-red"),
+    lblG=el.querySelector(".label-green"),lblR=el.querySelector(".label-red");
+
+  function start(cx,cy){if(locked)return;sx=cx;sy=cy;dx=0;dy=0;dragging=true;el.classList.add("dragging");}
+  function move(cx,cy){
+    if(!dragging)return;dx=cx-sx;dy=(cy-sy)*.3;
+    el.style.transform="translate("+dx+"px,"+dy+"px) rotate("+dx*.08+"deg)";
+    var go=Math.min(Math.max(dx/150,0),1),ro=Math.min(Math.max(-dx/150,0),1);
+    glowG.style.opacity=go;glowR.style.opacity=ro;lblG.style.opacity=go;lblR.style.opacity=ro;
+  }
+  function end(){
+    if(!dragging)return;dragging=false;el.classList.remove("dragging");
+    if(Math.abs(dx)>100){
+      var dir=dx>0?"green":"red";
+      el.style.transition="transform .3s ease";
+      el.style.transform="translate("+(dx>0?600:-600)+"px,"+dy+"px) rotate("+(dx>0?30:-30)+"deg)";
+      locked=true;setTimeout(function(){handleSwipe(dir);},300);
+    } else {
+      el.style.transform="";glowG.style.opacity=0;glowR.style.opacity=0;lblG.style.opacity=0;lblR.style.opacity=0;
+    }
+    dx=0;dy=0;
+  }
+
+  el.addEventListener("mousedown",function(e){e.preventDefault();start(e.clientX,e.clientY);});
+  el.addEventListener("touchstart",function(e){start(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+
+  mmHandler=function(e){move(e.clientX,e.clientY);};
+  muHandler=function(){end();};
+  tmHandler=function(e){if(dragging){e.preventDefault();move(e.touches[0].clientX,e.touches[0].clientY);}};
+  teHandler=function(){end();};
+  window.addEventListener("mousemove",mmHandler);
+  window.addEventListener("mouseup",muHandler);
+  window.addEventListener("touchmove",tmHandler,{passive:false});
+  window.addEventListener("touchend",teHandler);
+}
+
+function handleSwipe(dir){
+  var card=CARDS[idx],correct=dir===card.correctAnswer;
+  results.push({card:card,dir:dir,correct:correct});
+  if(MODE==="instant"){
+    var bg=correct?GREEN:RED;
+    var label=correct?"Correct!":"Not quite.";
+    fbArea.innerHTML="<div class=\"feedback-toast\" style=\"background:"+bg+"\"><strong>"+label+"</strong><br>"+escHtml(card.feedback)+"</div>";
+    setTimeout(function(){fbArea.innerHTML="";advance();},2000);
+  } else { advance(); }
+}
+
+function advance(){
+  idx++;locked=false;
+  if(idx>=CARDS.length){showScore();return;}
+  if(counter)counter.textContent=(idx+1)+" / "+CARDS.length;
+  renderStack();
+}
+
+function showScore(){
+  gameArea.classList.add("hidden");cleanupListeners();
+  var s=0;for(var i=0;i<results.length;i++){if(results[i].correct)s++;}
+  var t=results.length;
+  var html="<div class=\"score-circle\" style=\"background:"+(s/t>=.7?GREEN:RED)+"\">"+s+"/"+t+"</div>";
+  html+="<h3 class=\"score-title\">"+SCORECARD_TITLE+"</h3><div class=\"results\">";
+  for(var i=0;i<results.length;i++){
+    var r=results[i];
+    html+="<div class=\"result-row\"><span class=\"result-icon\" style=\"background:"+(r.correct?GREEN:RED)+"\">"+(r.correct?"\u2713":"\u2717")+"</span>";
+    html+="<div><div class=\"result-text\">"+escHtml(r.card.text)+"</div>";
+    if(MODE==="scorecard"&&r.card.feedback){html+="<div class=\"result-feedback\">"+escHtml(r.card.feedback)+"</div>";}
+    html+="</div></div>";
+  }
+  html+="</div><button class=\"btn\" onclick=\"location.reload()\">Try Again</button>";
+  scoreEl.innerHTML=html;scoreEl.classList.remove("hidden");
+}
+
+renderStack();
+})();
+</script>
+</body>
+</html>
