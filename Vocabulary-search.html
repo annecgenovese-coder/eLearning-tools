@@ -9,7 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Arial",sans-serif}
 #ws-root{font-size:16px;color:#1a1a2e;background:#bde6f6;max-width:100%;padding:16px;user-select:none;-webkit-user-select:none;text-align:center}
-.ws-title{font-family:"Arial",sans-serif;font-size:30px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:4px}
+.ws-title{font-family:"Arial",sans-serif;font-size:32px;font-weight:700;color:#9e0054;text-align:center;margin-bottom:4px}
 .ws-subtitle{font-family:"Montserrat",sans-serif;font-size:20px;font-weight:400;color:#1a1a2e;text-align:center;margin-bottom:16px}
 .ws-grid{display:inline-grid;grid-template-columns:repeat(10,36px);gap:2px;cursor:pointer}
 .ws-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;border-radius:4px;background:rgba(0,0,0,0.04);transition:background 0.15s;position:relative}
@@ -69,7 +69,7 @@ body{font-family:"Arial",sans-serif}
 var grid=[["Y","K","T","K","K","V","J","V","D","X"],["G","G","N","I","N","R","A","E","L","L"],["G","E","G","D","E","L","W","O","N","K"],["A","N","Y","D","B","S","C","X","B","C"],["D","R","I","F","N","I","V","J","O","V"],["Z","E","L","N","O","V","Y","W","M","Q"],["D","C","S","G","I","M","L","O","Q","S"],["S","N","O","I","T","A","C","U","D","E"],["I","N","W","S","G","B","R","Y","X","S"],["K","E","N","L","T","N","H","T","Z","C"]];
 var words=[{"w":"EDUCATION","d":"The systematic process of receiving instruction","h":"Related to school","c":[{"row":7,"col":9},{"row":7,"col":8},{"row":7,"col":7},{"row":7,"col":6},{"row":7,"col":5},{"row":7,"col":4},{"row":7,"col":3},{"row":7,"col":2},{"row":7,"col":1}],"n":"EDUCATION"},{"w":"KNOWLEDGE","d":"Facts, information, and skills acquired through experience","h":"What you gain from learning","c":[{"row":2,"col":9},{"row":2,"col":8},{"row":2,"col":7},{"row":2,"col":6},{"row":2,"col":5},{"row":2,"col":4},{"row":2,"col":3},{"row":2,"col":2},{"row":2,"col":1}],"n":"KNOWLEDGE"},{"w":"LEARNING","d":"The process of acquiring new knowledge or skills","h":"Starts with L","c":[{"row":1,"col":8},{"row":1,"col":7},{"row":1,"col":6},{"row":1,"col":5},{"row":1,"col":4},{"row":1,"col":3},{"row":1,"col":2},{"row":1,"col":1}],"n":"LEARNING"},{"w":"TRAINING","d":"The action of teaching a person a particular skill","h":"On-the-job ___","c":[{"row":9,"col":7},{"row":8,"col":6},{"row":7,"col":5},{"row":6,"col":4},{"row":5,"col":3},{"row":4,"col":2},{"row":3,"col":1},{"row":2,"col":0}],"n":"TRAINING"},{"w":"DESIGN","d":"A plan or blueprint for creating something","h":"Has 6 letters","c":[{"row":4,"col":0},{"row":5,"col":1},{"row":6,"col":2},{"row":7,"col":3},{"row":8,"col":4},{"row":9,"col":5}],"n":"DESIGN"}];
 var size=10;
-var cfg={pid:"ws_198zf9ni",timer:true,hint:true,revealLetter:false,revealWord:true,reset:true,sound:"chime",showList:true};
+var cfg={pid:"ws_bd2f06xp",timer:true,hint:true,revealLetter:false,revealWord:true,reset:true,sound:"chime",showList:true};
 var state={found:[],revealed:[],discovered:[],elapsed:0,soundOn:true};
 var startCell=null,selecting=[],timerInt=null,scorm=null;
 var D=document,gel=function(id){return D.getElementById(id)};
