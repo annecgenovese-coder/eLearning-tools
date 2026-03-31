@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Search</title>
+<style>
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Poppins",sans-serif}
+#ws-root{font-size:18px;color:#1a1a2e;background:#bde6f6;max-width:100%;padding:16px;user-select:none;-webkit-user-select:none;text-align:center}
+.ws-title{font-family:"Poppins",sans-serif;font-size:32px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:16px}
+.ws-grid{display:inline-grid;grid-template-columns:repeat(10,36px);gap:2px;cursor:pointer}
+.ws-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;border-radius:4px;background:rgba(0,0,0,0.04);transition:background 0.15s;position:relative}
+.ws-cell:hover{background:rgba(0,0,0,0.08)}
+.ws-cell:focus{outline:2px solid #ffd166;outline-offset:1px}
+.ws-cell.selecting{background:#ffd166}
+.ws-cell.found{background:#06d6a0;color:#fff}
+.ws-cell.revealed{background:#118ab2;color:#fff;opacity:0.7}
+.ws-cell.hint-flash{background:#ffd166;animation:flash 1s}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:0.3}}
+.ws-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.ws-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ws-btn{padding:6px 12px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;transition:background 0.15s}
+.ws-btn:hover{background:rgba(0,0,0,0.05)}
+.ws-btn:focus{outline:2px solid #ffd166;outline-offset:1px}
+.ws-btn.active{background:#06d6a0;color:#fff;border-color:#06d6a0}
+.ws-progress{font-size:13px;font-weight:600;margin-bottom:8px}
+.ws-wordlist{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.ws-wordtag{padding:4px 10px;border-radius:12px;font-size:12px;font-weight:500;background:rgba(0,0,0,0.06)}
+.ws-wordtag.found{background:#06d6a0;color:#fff;text-decoration:line-through}
+.ws-wordtag.revealed{background:#118ab2;color:#fff;font-style:italic}
+.ws-discovered{margin-top:16px;border-top:1px solid rgba(0,0,0,0.1);padding-top:12px;max-width:600px;margin-left:auto;margin-right:auto;}
+.ws-discovered h3{font-size:25px;font-weight:700;margin-bottom:10px;text-align:center}
+.ws-def-item{padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:18px;line-height:1.5;text-align:left}
+.ws-def-word{font-weight:700}
+.ws-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:flex;align-items:center;justify-content:center;animation:fadein 0.2s}
+.ws-popup{position:relative;background:#fff;color:#333;padding:32px 40px;border-radius:12px;font-size:18px;z-index:1000;max-width:90%;width:432px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:popscale 0.25s}
+.ws-popup-word{font-size:29px;font-weight:700;margin-bottom:9px}
+.ws-popup-def{font-size:18px;line-height:1.5;color:#555;text-align:left}
+.ws-popup-close{margin-top:18px;padding:9px 27px;border:none;border-radius:6px;background:#06d6a0;color:#fff;font-size:18px;font-weight:600;cursor:pointer;transition:opacity 0.15s}
+.ws-popup-close:hover{opacity:0.85}
+.ws-popup-close:focus{outline:2px solid #ffd166;outline-offset:2px}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes popscale{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.ws-timer{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.ws-complete{text-align:center;padding:20px;margin-top:16px;background:#06d6a022;border-radius:8px;font-size:16px;font-weight:600}
+.ws-attribution{text-align:center;margin-top:12px;font-size:12px;color:#6b7280}
+.ws-grid-wrap{text-align:center;overflow-x:auto;padding:8px 0}
+</style>
+</head>
+<body>
+<div id="ws-root" role="application" aria-label="Word Search Puzzle">
+<div class="ws-title">eLearning Design Vocabulary</div>
+<div class="ws-header">
+<div class="ws-controls" id="ws-controls"></div>
+<div class="ws-timer" id="ws-timer" ></div>
+</div>
+<div class="ws-progress" id="ws-progress"></div>
+<div class="ws-grid-wrap"><div class="ws-grid" id="ws-grid" role="grid" aria-label="Word search grid"></div></div>
+<div class="ws-wordlist" id="ws-wordlist" ></div>
+<div class="ws-discovered" id="ws-discovered" style="display:none"><h3>Discovered Definitions</h3><div id="ws-defs"></div></div>
+<div class="ws-attribution">Built by eLearningDesign.org</div>
+</div>
+<script>
+(function(){
+var grid=[["C","R","U","M","K","N","O","L","K","G"],["F","N","H","R","G","P","E","N","E","T"],["Z","H","I","I","E","A","O","D","R","B"],["V","D","S","N","R","W","U","A","W","M"],["C","E","U","N","L","C","I","X","W","O"],["D","Q","I","E","A","N","D","C","Y","C"],["A","N","D","T","I","W","Z","V","A","G"],["G","G","I","N","Y","M","A","R","V","Z"],["E","O","G","S","B","O","R","Q","P","Z"],["N","F","J","Q","A","U","O","N","W","A"]];
+var words=[{"w":"EDUCATION","d":"The systematic process of receiving instruction","h":"Related to school","c":[{"row":1,"col":8},{"row":2,"col":7},{"row":3,"col":6},{"row":4,"col":5},{"row":5,"col":4},{"row":6,"col":3},{"row":7,"col":2},{"row":8,"col":1},{"row":9,"col":0}],"n":"EDUCATION"},{"w":"KNOWLEDGE","d":"Facts, information, and skills acquired through experience","h":"What you gain from learning","c":[{"row":0,"col":8},{"row":1,"col":7},{"row":2,"col":6},{"row":3,"col":5},{"row":4,"col":4},{"row":5,"col":3},{"row":6,"col":2},{"row":7,"col":1},{"row":8,"col":0}],"n":"KNOWLEDGE"},{"w":"LEARNING","d":"The process of acquiring new knowledge or skills","h":"Starts with L","c":[{"row":0,"col":7},{"row":1,"col":6},{"row":2,"col":5},{"row":3,"col":4},{"row":4,"col":3},{"row":5,"col":2},{"row":6,"col":1},{"row":7,"col":0}],"n":"LEARNING"},{"w":"TRAINING","d":"The action of teaching a person a particular skill","h":"On-the-job ___","c":[{"row":1,"col":9},{"row":2,"col":8},{"row":3,"col":7},{"row":4,"col":6},{"row":5,"col":5},{"row":6,"col":4},{"row":7,"col":3},{"row":8,"col":2}],"n":"TRAINING"},{"w":"DESIGN","d":"A plan or blueprint for creating something","h":"Has 6 letters","c":[{"row":5,"col":0},{"row":4,"col":1},{"row":3,"col":2},{"row":2,"col":3},{"row":1,"col":4},{"row":0,"col":5}],"n":"DESIGN"}];
+var size=10;
+var cfg={pid:"ws_s8is4x24",timer:true,hint:true,revealLetter:false,revealWord:true,reset:true,sound:"chime",showList:true};
+var state={found:[],revealed:[],discovered:[],elapsed:0,soundOn:true};
+var startCell=null,selecting=[],timerInt=null,scorm=null;
+var D=document,gel=function(id){return D.getElementById(id)};
+
+function initScorm(){try{
+var w=window;
+if(w.API)scorm={api:w.API,v:'1.2'};
+else if(w.API_1484_11)scorm={api:w.API_1484_11,v:'2004'};
+else if(w.parent&&w.parent.API)scorm={api:w.parent.API,v:'1.2'};
+else if(w.parent&&w.parent.API_1484_11)scorm={api:w.parent.API_1484_11,v:'2004'};
+if(scorm){
+try{scorm.api.LMSInitialize?scorm.api.LMSInitialize(''):scorm.api.Initialize('')}catch(e){}
+}}catch(e){scorm=null}}
+
+function save(){
+var d=JSON.stringify({f:state.found,r:state.revealed,d:state.discovered,e:state.elapsed,s:state.soundOn});
+if(scorm){try{
+if(scorm.v==='1.2'){scorm.api.LMSSetValue('cmi.suspend_data',d);scorm.api.LMSCommit('')}
+else{scorm.api.SetValue('cmi.suspend_data',d);scorm.api.Commit('')}
+}catch(e){}}
+try{localStorage.setItem('ws_'+cfg.pid,d)}catch(e){}
+}
+
+function load(){
+var d=null;
+if(scorm){try{d=scorm.v==='1.2'?scorm.api.LMSGetValue('cmi.suspend_data'):scorm.api.GetValue('cmi.suspend_data')}catch(e){}}
+if(!d||d==='')try{d=localStorage.getItem('ws_'+cfg.pid)}catch(e){}
+if(d&&d!==''){try{var p=JSON.parse(d);state.found=p.f||[];state.revealed=p.r||[];state.discovered=p.d||[];state.elapsed=p.e||0;state.soundOn=p.s!==false}catch(e){}}
+}
+
+function playSound(){
+if(!state.soundOn||cfg.sound==='none')return;
+try{var ctx=new(window.AudioContext||window.webkitAudioContext)();
+var o=ctx.createOscillator(),g=ctx.createGain();
+o.connect(g);g.connect(ctx.destination);
+if(cfg.sound==='chime'){o.type='sine';o.frequency.setValueAtTime(880,ctx.currentTime);o.frequency.setValueAtTime(1100,ctx.currentTime+0.1);g.gain.setValueAtTime(0.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);o.start();o.stop(ctx.currentTime+0.4)}
+else if(cfg.sound==='pop'){o.type='sine';o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+0.15);g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15);o.start();o.stop(ctx.currentTime+0.15)}
+else{o.type='sine';o.frequency.setValueAtTime(1200,ctx.currentTime);g.gain.setValueAtTime(0.25,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);o.start();o.stop(ctx.currentTime+0.5)}
+}catch(e){}}
+
+function getLine(r1,c1,r2,c2){
+var dr=r2-r1,dc=c2-c1;
+var len=Math.max(Math.abs(dr),Math.abs(dc));
+if(len===0)return[{r:r1,c:c1}];
+if(dr!==0&&dc!==0&&Math.abs(dr)!==Math.abs(dc))return null;
+var sr=dr===0?0:(dr>0?1:-1),sc=dc===0?0:(dc>0?1:-1);
+var cells=[];
+for(var i=0;i<=len;i++)cells.push({r:r1+sr*i,c:c1+sc*i});
+return cells;
+}
+
+function checkWord(cells){
+var letters=cells.map(function(c){return grid[c.r][c.c]}).join('');
+for(var i=0;i<words.length;i++){
+if(state.found.indexOf(i)>=0||state.revealed.indexOf(i)>=0)continue;
+var w=words[i];
+if(w.w===letters){
+var match=true;
+for(var j=0;j<cells.length;j++){if(cells[j].r!==w.c[j].row||cells[j].c!==w.c[j].col){match=false;break}}
+if(match)return i;
+}
+var rev=letters.split('').reverse().join('');
+if(w.w===rev){
+var match2=true;
+for(var j=0;j<cells.length;j++){var ri=cells.length-1-j;if(cells[j].r!==w.c[ri].row||cells[j].c!==w.c[ri].col){match2=false;break}}
+if(match2)return i;
+}
+}
+return-1;
+}
+
+function markFound(idx,isReveal){
+if(isReveal){if(state.revealed.indexOf(idx)<0)state.revealed.push(idx)}
+else{if(state.found.indexOf(idx)<0)state.found.push(idx)}
+var w=words[idx];
+if(state.discovered.filter(function(d){return d.w===w.n}).length===0){
+state.discovered.push({w:w.n,d:w.d})}
+playSound();save();render();showPopup(w.n,w.d);
+if(state.found.length+state.revealed.length===words.length){onComplete()}
+}
+
+function showPopup(word,def){
+var existing=D.querySelector('.ws-popup-overlay');if(existing)existing.remove();
+var overlay=D.createElement('div');overlay.className='ws-popup-overlay';
+var p=D.createElement('div');p.className='ws-popup';
+var wEl=D.createElement('div');wEl.className='ws-popup-word';wEl.textContent=word;
+var dEl=D.createElement('div');dEl.className='ws-popup-def';dEl.textContent=def;
+var btn=D.createElement('button');btn.className='ws-popup-close';btn.textContent='Got it';
+btn.setAttribute('aria-label','Close popup');
+btn.onclick=function(){overlay.remove()};
+overlay.onclick=function(e){if(e.target===overlay)overlay.remove()};
+p.appendChild(wEl);p.appendChild(dEl);p.appendChild(btn);
+overlay.appendChild(p);D.body.appendChild(overlay);btn.focus();
+}
+
+function onComplete(){
+if(timerInt)clearInterval(timerInt);
+var el=D.createElement('div');el.className='ws-complete';
+el.textContent='🎉 Puzzle Complete! Found: '+state.found.length+' | Revealed: '+state.revealed.length;
+gel('ws-root').appendChild(el);save();
+}
+
+function render(){
+var g=gel('ws-grid');g.innerHTML='';
+for(var r=0;r<size;r++){for(var c=0;c<size;c++){
+var cell=D.createElement('div');
+cell.className='ws-cell';
+cell.textContent=grid[r][c];
+cell.dataset.r=r;cell.dataset.c=c;
+cell.setAttribute('role','gridcell');
+cell.setAttribute('aria-label','Letter '+grid[r][c]+' at row '+(r+1)+' column '+(c+1));
+cell.setAttribute('tabindex','0');
+// Check if found/revealed
+for(var wi=0;wi<words.length;wi++){
+var isF=state.found.indexOf(wi)>=0,isR=state.revealed.indexOf(wi)>=0;
+if(isF||isR){for(var ci=0;ci<words[wi].c.length;ci++){
+if(words[wi].c[ci].row===r&&words[wi].c[ci].col===c){cell.className+=' '+(isF?'found':'revealed');break}
+}}}
+g.appendChild(cell);
+}}
+
+// Word list
+if(cfg.showList){
+var wl=gel('ws-wordlist');wl.innerHTML='';
+for(var i=0;i<words.length;i++){
+var tag=D.createElement('span');tag.className='ws-wordtag';
+if(state.found.indexOf(i)>=0)tag.className+=' found';
+else if(state.revealed.indexOf(i)>=0)tag.className+=' revealed';
+tag.textContent=words[i].n;wl.appendChild(tag);
+}}
+
+// Discovered
+var disc=gel('ws-discovered'),defs=gel('ws-defs');
+if(state.discovered.length>0){disc.style.display='';defs.innerHTML='';
+state.discovered.forEach(function(d){
+var div=D.createElement('div');div.className='ws-def-item';
+div.innerHTML='<span class="ws-def-word">'+d.w+'</span>: '+d.d;
+defs.appendChild(div);
+})}
+
+// Progress
+gel('ws-progress').textContent='Found: '+state.found.length+' / '+words.length+(state.revealed.length?' (Revealed: '+state.revealed.length+')':'');
+
+setupInteraction();
+}
+
+function setupInteraction(){
+var g=gel('ws-grid');
+var cells=g.querySelectorAll('.ws-cell');
+var dragging=false;
+
+g.onmousedown=function(e){
+var t=e.target;if(!t.dataset.r)return;
+startCell={r:+t.dataset.r,c:+t.dataset.c};
+dragging=true;clearSel();t.classList.add('selecting');
+selecting=[{r:+t.dataset.r,c:+t.dataset.c}];
+e.preventDefault();
+};
+
+g.onmousemove=function(e){
+if(!dragging||!startCell)return;
+var t=D.elementFromPoint(e.clientX,e.clientY);
+if(!t||!t.dataset||!t.dataset.r)return;
+var r2=+t.dataset.r,c2=+t.dataset.c;
+var line=getLine(startCell.r,startCell.c,r2,c2);
+clearSel();
+if(line){line.forEach(function(p){
+var el=g.querySelector('[data-r="'+p.r+'"][data-c="'+p.c+'"]');
+if(el)el.classList.add('selecting');
+});selecting=line}
+};
+
+g.onmouseup=function(e){
+if(!dragging||!startCell){dragging=false;return}
+dragging=false;
+var t=D.elementFromPoint(e.clientX,e.clientY);
+if(t&&t.dataset&&t.dataset.r){
+var r2=+t.dataset.r,c2=+t.dataset.c;
+var line=getLine(startCell.r,startCell.c,r2,c2);
+if(line&&line.length>1){var wi=checkWord(line);if(wi>=0)markFound(wi,false)}
+}
+clearSel();startCell=null;selecting=[];
+};
+
+g.ontouchstart=function(e){
+var t=e.touches[0];var el=D.elementFromPoint(t.clientX,t.clientY);
+if(!el||!el.dataset||!el.dataset.r)return;
+startCell={r:+el.dataset.r,c:+el.dataset.c};
+dragging=true;clearSel();el.classList.add('selecting');
+selecting=[{r:+el.dataset.r,c:+el.dataset.c}];
+e.preventDefault();
+};
+
+g.ontouchmove=function(e){
+if(!dragging||!startCell)return;
+var t=e.touches[0];var el=D.elementFromPoint(t.clientX,t.clientY);
+if(!el||!el.dataset||!el.dataset.r)return;
+var r2=+el.dataset.r,c2=+el.dataset.c;
+var line=getLine(startCell.r,startCell.c,r2,c2);
+clearSel();
+if(line){line.forEach(function(p){
+var cel=g.querySelector('[data-r="'+p.r+'"][data-c="'+p.c+'"]');
+if(cel)cel.classList.add('selecting');
+});selecting=line}
+e.preventDefault();
+};
+
+g.ontouchend=function(e){
+if(!dragging||!startCell||!selecting.length){dragging=false;return}
+dragging=false;
+if(selecting.length>1){var wi=checkWord(selecting);if(wi>=0)markFound(wi,false)}
+clearSel();startCell=null;selecting=[];
+};
+
+function clearSel(){var s=g.querySelectorAll('.selecting');for(var i=0;i<s.length;i++)s[i].classList.remove('selecting')}
+}
+
+function buildControls(){
+var c=gel('ws-controls');c.innerHTML='';
+// Sound toggle
+var sb=D.createElement('button');sb.className='ws-btn'+(state.soundOn?' active':'');
+sb.textContent=state.soundOn?'🔊 Sound':'🔇 Muted';
+sb.setAttribute('aria-label','Toggle sound');
+sb.onclick=function(){state.soundOn=!state.soundOn;save();buildControls()};
+c.appendChild(sb);
+
+
+var hb=D.createElement('button');hb.className='ws-btn';hb.textContent='💡 Hint';
+hb.setAttribute('aria-label','Get a hint');
+hb.onclick=function(){
+for(var i=0;i<words.length;i++){
+if(state.found.indexOf(i)>=0||state.revealed.indexOf(i)>=0)continue;
+var fc=words[i].c[0];
+var el=gel('ws-grid').querySelector('[data-r="'+fc.row+'"][data-c="'+fc.col+'"]');
+if(el){el.classList.add('hint-flash');setTimeout(function(e){e.classList.remove('hint-flash')},1000,el)}
+break;}};
+c.appendChild(hb);
+
+
+var rb=D.createElement('button');rb.className='ws-btn';rb.textContent='👁 Reveal Word';
+rb.setAttribute('aria-label','Reveal a word');
+rb.onclick=function(){
+for(var i=0;i<words.length;i++){
+if(state.found.indexOf(i)>=0||state.revealed.indexOf(i)>=0)continue;
+markFound(i,true);break;}};
+c.appendChild(rb);
+
+
+var resetb=D.createElement('button');resetb.className='ws-btn';resetb.textContent='↺ Reset';
+resetb.setAttribute('aria-label','Reset puzzle');
+resetb.onclick=function(){
+state.found=[];state.revealed=[];state.discovered=[];state.elapsed=0;
+save();render();buildControls();
+if(cfg.timer)startTimer();};
+c.appendChild(resetb);
+}
+
+function startTimer(){
+if(!cfg.timer)return;
+updateTimerDisplay();
+if(timerInt)clearInterval(timerInt);
+timerInt=setInterval(function(){state.elapsed++;updateTimerDisplay();if(state.elapsed%10===0)save()},1000);
+}
+
+function updateTimerDisplay(){
+var m=Math.floor(state.elapsed/60),s=state.elapsed%60;
+gel('ws-timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+}
+
+// Init
+initScorm();load();render();buildControls();startTimer();
+window.addEventListener('beforeunload',save);
+})();
+</script>
+</body>
+</html>
