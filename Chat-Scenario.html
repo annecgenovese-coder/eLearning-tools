@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap">
+<style>
+:root{
+--font:"Poppins",system-ui,-apple-system,sans-serif;
+--page:#b0e6ea;
+--card:#FFFFFF;
+--text:#1F2937;
+--primary:#A00056;
+--primaryText:#FFFFFF;
+--cust:#F6F8FA;
+--custAccent:#A00056;
+--agent:#A00056;
+--custText:#1F2937;
+--agentText:#FFFFFF;
+--custAvatarBg:#F6F8FA;
+--custAvatarFg:#A00056;
+--agentAvatarBg:#F6F8FA;
+--agentAvatarFg:#45BEF9;
+--colorSatisfied:#A00056;
+--colorNeutral:#6B7280;
+--colorFrustrated:#6B7280;
+--colorAngry:#6B7280;
+--r:16px;
+--base:18px;
+--titleSize:32px;
+--subtitleSize:18px;
+--align:center;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:var(--font);font-size:var(--base);color:var(--text);background:var(--page);padding:16px}
+.wrap{width:100%;max-width:960px;margin:0 auto}
+.card{background:var(--card);border-radius:var(--r);padding:clamp(12px,3vw,24px);box-shadow:0 10px 28px rgba(0,0,0,.10);border:1px solid rgba(0,0,0,.06)}
+
+/* Centered header */
+.header{text-align:var(--align);margin-bottom:16px}
+.title{font-weight:800;font-size:var(--titleSize);margin-bottom:4px}
+.sub{opacity:.75;font-size:var(--subtitleSize);margin-bottom:12px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.05);padding:6px 12px;border-radius:999px;font-weight:700;font-size:.85em}
+.pill b{color:var(--primary)}
+
+/* Trust meter */
+.trust-meter{width:100%;max-width:400px;margin:0 auto 12px}
+.trust-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:.85em;font-weight:700}
+.trust-header b{color:var(--primary)}
+.trust-tone{color:#6B7280;font-weight:400;font-size:.85em}
+.trust-track{position:relative;height:12px;background:#E6E9EE;border-radius:999px;overflow:visible}
+.trust-fill{position:absolute;inset:0;border-radius:999px;transition:width .3s;background:var(--primary)}
+.trust-marker{position:absolute;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:left .3s;background:var(--primary)}
+
+/* Chat area */
+.chat{display:flex;flex-direction:column;gap:10px;background:rgba(0,0,0,.03);border-radius:calc(var(--r) - 4px);padding:clamp(8px,2vw,16px);min-height:160px;max-height:400px;overflow-y:auto}
+.row{display:flex;gap:8px;max-width:85%}
+.row.cust{align-self:flex-start}
+.row.agent{align-self:flex-end;flex-direction:row-reverse}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.row.cust .avatar{background:var(--custAvatarBg);color:var(--custAvatarFg)}
+.row.agent .avatar{background:var(--agentAvatarBg);color:var(--agentAvatarFg)}
+.bubble{padding:8px 16px;border-radius:14px;line-height:1.3;font-size:1em;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.row.cust .bubble{background:var(--cust);color:var(--custText);border-bottom-left-radius:4px}
+.row.agent .bubble{background:var(--agent);color:var(--agentText);border-bottom-right-radius:4px}
+
+/* Response choices */
+#responder{margin-top:12px}
+.lbl{font-weight:700;font-size:.85em;opacity:.75;margin-bottom:8px}
+#choices{display:flex;flex-direction:column;gap:8px}
+.btn{border:none;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;text-align:left;font-size:.9em;font-family:inherit;transition:filter .15s}
+.btn.primary{background:var(--primary);color:var(--primaryText)}
+.btn.primary:hover{filter:brightness(.92)}
+.btn.ghost{background:rgba(0,0,0,.07);color:var(--text)}
+.btn.ghost:hover{background:rgba(0,0,0,.11)}
+
+/* Feedback panel */
+#feedback{display:none;margin-top:12px;padding:12px;border-radius:calc(var(--r) - 4px)}
+#feedback{background:color-mix(in srgb,var(--primary) 8%,transparent);border:1px solid color-mix(in srgb,var(--primary) 20%,transparent)}
+#feedback h4{font-weight:800;margin-bottom:6px;color:var(--primary)}
+.tips-title{font-weight:700;font-size:.85em;color:#6B7280;margin-bottom:4px}
+.tips{list-style:disc;padding-left:18px;font-size:.9em;color:#6B7280;margin-bottom:8px}
+.coaching{font-size:.9em;color:#6B7280}
+
+/* Outcome panel */
+#outcome{display:none;margin-top:12px;padding:16px;border-radius:calc(var(--r) - 4px);background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.08);text-align:center}
+#outcome h3{font-weight:800;font-size:1.1em;margin-bottom:4px}
+#outcome .final-score{margin-bottom:4px}
+#outcome .rating{font-weight:700;margin-bottom:12px;color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <div class="title" id="title"></div>
+      <div class="sub" id="sub"></div>
+      
+      <!-- Conversation Tone Meter -->
+      <div class="trust-meter">
+        <div class="trust-header">
+          <span>Conversation Tone: <b id="trustText">70%</b></span>
+          <span class="trust-tone" id="moodDisplay">Current tone: <span id="mood">Neutral</span></span>
+        </div>
+        <div class="trust-track" id="trustTrack" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" aria-label="Conversation Tone">
+          <div class="trust-fill" id="trustFill"></div>
+          <div class="trust-marker" id="trustMarker"></div>
+        </div>
+      </div>
+      
+      <div class="pills">
+        <div class="pill">Progress: <b id="progress">Step 1 of 1</b></div>
+      </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div id="responder">
+      <div class="lbl">Choose your response:</div>
+      <div id="choices"></div>
+    </div>
+
+    <div id="feedback">
+      <h4 id="feedbackHeadline"></h4>
+      <div id="tipsSection">
+        <div class="tips-title">Training Tips</div>
+        <ul class="tips" id="tips"></ul>
+      </div>
+      <div id="coachingSection">
+        <div class="tips-title">Coaching Feedback</div>
+        <div class="coaching" id="coaching"></div>
+      </div>
+    </div>
+
+    <div id="outcome">
+      <h3>Scenario Complete</h3>
+      <div class="final-score">Final Trust: <b id="finalScore" style="color:var(--primary)">70%</b></div>
+      <div class="rating" id="rating"></div>
+      <button class="btn ghost" id="restart">Start Over</button>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:#8296B8;text-align:center">Built by eLearningDesign.org</div>
+  </div>
+</div>
+
+<script>
+const D={"theme":{"font":"Poppins","googleFonts":true,"base":16,"titleFontSize":32,"subtitleFontSize":18,"contentFontSize":18,"textAlign":"center","pageBg":"#b0e6ea","cardBg":"#FFFFFF","text":"#1F2937","primary":"#A00056","primaryText":"#FFFFFF","cust":"#F6F8FA","custAccent":"#A00056","agent":"#A00056","custText":"#1F2937","agentText":"#FFFFFF","sys":"#F6F8FA","radius":16,"block":"M","showMood":true,"shuffle":true,"showAvatars":true,"custAvatarBg":"#F6F8FA","custAvatarFg":"#A00056","agentAvatarBg":"#F6F8FA","agentAvatarFg":"#45BEF9","showAttribution":true,"colorSatisfied":"#A00056","colorNeutral":"#6B7280","colorFrustrated":"#6B7280","colorAngry":"#6B7280"},"cfg":{"scenarioTitle":"Negotiating the Core Content","scenarioSubtitle":"Guide your SME to focus on what learners need to DO, not everything they COULD know.","coachingNotes":"Acknowledge SME expertise while protecting project scope.\nShift the focus from comprehensive knowledge to specific performance goals.\nAvoid quoting learning theory to justify cuts, as it alienates SMEs.\nPropose alternative homes for nice-to-have information.","startStepName":"Step 1","steps":[{"name":"Step 1","customerFirst":"I reviewed the storyboard. We really need to add the full 20-page history of the software's development before we teach them how to log in.","branches":{"satisfied":{"buttonLabel":"Validate expertise and suggest an appendix.","agentReply":"I completely understand why that context is valuable given your deep knowledge. Let's put the full history in a linked resources document so we can keep the main module focused on immediate tasks.","customerNext":"I guess an appendix works, but what about the 15 system architecture diagrams?","hint":"Great! You validated their expertise while protecting the cognitive load.","nextStep":"Step 2"},"neutral":{"buttonLabel":"Say no but offer a vague alternative.","agentReply":"We can't include 20 pages because the course will be way too long. Maybe we can just cut it down a bit?","customerNext":"It is all essential information. If we cut it down, they won't understand the foundation.","hint":"You pushed back but didn't offer a concrete solution, leaving the door open for debate.","nextStep":"Step 3"},"frustrated":{"buttonLabel":"Cite cognitive overload and reject the idea.","agentReply":"Adding 20 pages violates adult learning principles and will cause cognitive overload. We have to stick to the approved outline.","customerNext":"I do not care about your theories. If they do not read this, they will make massive errors.","hint":"Quoting theory often makes SMEs feel dismissed and defensive.","nextStep":"Step 3"},"angry":{"buttonLabel":"Blame the SME for trying to ruin the course.","agentReply":"You are trying to turn a simple training module into an encyclopedia. I am not doing that.","customerNext":"Excuse me? I am the expert here, and I am escalating this to the project sponsor.","hint":"Hostility instantly derails the partnership and halts progress.","nextStep":"Step 4"}}},{"name":"Step 2","customerFirst":"I guess an appendix works for the history, but we still absolutely must include all 15 system architecture diagrams in the first module.","branches":{"satisfied":{"buttonLabel":"Focus on performance goals and task alignment.","agentReply":"Those diagrams are incredibly detailed. To ensure we meet our 15-minute runtime goal, which two diagrams are most critical for logging in?","customerNext":"Well, only one really relates to the login process. The rest are backend routing.","hint":"Excellent. You reframed the request around the established project goals.","nextStep":"Step 4"},"neutral":{"buttonLabel":"Agree to include a few diagrams without a strategy.","agentReply":"Fifteen is too many for this section. Let's just pick five of them and move on.","customerNext":"How am I supposed to randomly pick five? They are sequential and build on each other!","hint":"Arbitrary limits frustrate SMEs. Base your decisions on learning objectives instead.","nextStep":"Step 3"},"frustrated":{"buttonLabel":"Tell them the diagrams are too complex for learners.","agentReply":"Our audience isn't technical enough to understand these architecture diagrams anyway. We are skipping them.","customerNext":"You are severely underestimating our staff. They need to see the big picture.","hint":"Insulting the audience's intelligence is a quick way to lose the SME's trust.","nextStep":"Step 4"},"angry":{"buttonLabel":"Demand they stop adding scope to the project.","agentReply":"Stop trying to cram more things into this module! You signed off on the outline yesterday.","customerNext":"This is a working document, and your attitude is completely unprofessional.","hint":"Aggression shuts down communication entirely.","nextStep":"Step 4"}}},{"name":"Step 3","customerFirst":"If we don't include all this foundational material, the learners are going to make massive errors. It's all essential!","branches":{"satisfied":{"buttonLabel":"Ask for an example of a common learner error.","agentReply":"I want to make sure we prevent those errors. What is the most common mistake you see new users make?","customerNext":"They usually click the wrong server portal on the login screen. That is what we need to fix.","hint":"Great pivot! You guided them back to performance issues rather than information dumps.","nextStep":"Step 4"},"neutral":{"buttonLabel":"Reluctantly agree to add more information.","agentReply":"Okay, if you think it is absolutely necessary, we can add a few more slides to cover it.","customerNext":"Good. I will send over a 50-slide deck you can pull from.","hint":"You caved to the pressure, resulting in scope creep and a bloated course.","nextStep":"Step 4"},"frustrated":{"buttonLabel":"Remind them of the project deadline and budget.","agentReply":"We do not have the time or budget to build out all this extra foundational content. We have to launch next week.","customerNext":"If the training is useless, launching on time does not matter. I am pulling my support.","hint":"Focusing purely on logistics makes it seem like you do not care about quality.","nextStep":"Step 4"},"angry":{"buttonLabel":"Tell them they don't know how training works.","agentReply":"You are a software engineer, not a teacher. Let me do my job and design the course.","customerNext":"Fine. Do whatever you want, but do not expect me to review anything else.","hint":"Pulling rank destroys the relationship and leaves you without SME support.","nextStep":"Step 4"}}},{"name":"Step 4","customerFirst":"Okay, so where do we go from here with the rest of the storyboard review?","branches":{"satisfied":{"buttonLabel":"Propose a structured review focused on tasks.","agentReply":"Let's review the rest of the document by matching each paragraph to a specific action the learner needs to perform. I will set up a 30-minute call for tomorrow.","customerNext":"That sounds like a productive approach. I will talk to you tomorrow.","hint":"You successfully negotiated the content down to actionable, performance-based objectives.","nextStep":""},"neutral":{"buttonLabel":"Ask them to finish reviewing it on their own.","agentReply":"Just leave your comments in the document by Friday, and I will try to incorporate what I can.","customerNext":"I will leave comments, but I expect to see most of my additions in the final version.","hint":"You avoided the conflict but left the door open for another massive information dump later.","nextStep":""},"frustrated":{"buttonLabel":"Tell them to only comment on factual errors.","agentReply":"Please limit your review to checking for technical accuracy only. The instructional design decisions are final.","customerNext":"I will review it for accuracy, but I am going to note my strong objections to the format.","hint":"You set a boundary, but the adversarial tone damaged the long-term partnership.","nextStep":""},"angry":{"buttonLabel":"Threaten to end the review process completely.","agentReply":"If we cannot agree on basic design principles, I will just finish the storyboard myself without your input.","customerNext":"Good luck getting the director to approve it without my sign-off. We are done here.","hint":"You have completely lost your SME and jeopardized the entire project.","nextStep":""}}}]},"totalSteps":4};
+const theme=D.theme,cfg=D.cfg,totalSteps=D.totalSteps;
+const stepsByName=new Map();(cfg.steps||[]).forEach(s=>stepsByName.set(s.name,s));
+const ORDER=["satisfied","neutral","frustrated","angry"];
+const trustChange={satisfied:10,neutral:0,frustrated:-10,angry:-20};
+const moodLabel={angry:"Angry",frustrated:"Frustrated",neutral:"Neutral",satisfied:"Satisfied"};
+const feedbackHeadlines={satisfied:"Great choice!",neutral:"Okay choice",frustrated:"Could be better",angry:"Not quite"};
+
+function getMood(t){return t>=75?"satisfied":t>=50?"neutral":t>=25?"frustrated":"angry";}
+
+let state={trust:70,stepsCompleted:0,ended:false,currentName:cfg.startStepName||cfg.steps?.[0]?.name||""};
+
+const $=id=>document.getElementById(id);
+function shuffle(a){let arr=[...a];for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+function updateTrust(){
+  const t=state.trust;
+  const m=getMood(t);
+  $("trustText").textContent=t+"%";
+  $("trustTrack").setAttribute("aria-valuenow",t);
+  $("trustFill").style.width=t+"%";
+  $("trustMarker").style.left="calc("+t+"% - 8px)";
+  $("mood").textContent=moodLabel[m];
+  if(!theme.showMood)$("moodDisplay").style.display="none";
+}
+
+function updateProgress(){
+  const step=Math.min(state.stepsCompleted+1,totalSteps);
+  $("progress").textContent="Step "+step+" of "+totalSteps;
+}
+
+function bubble(who,text){
+  const row=document.createElement("div");row.className="row "+who;
+  if(theme.showAvatars){
+    const av=document.createElement("div");av.className="avatar";
+    av.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;display:block" fill="currentColor"><path d="M12 12a4.25 4.25 0 1 0-4.25-4.25A4.25 4.25 0 0 0 12 12Zm0 2c-4.2 0-7.5 2.1-7.5 4.75V20h15v-1.25C19.5 16.1 16.2 14 12 14Z"></path></svg>';
+    row.appendChild(av);
+  }
+  const b=document.createElement("div");b.className="bubble";b.textContent=text;row.appendChild(b);
+  $("chat").appendChild(row);$("chat").scrollTop=$("chat").scrollHeight;
+}
+
+function showFeedback(key,hint){
+  const fb=$("feedback");
+  fb.style.display="block";
+  $("feedbackHeadline").textContent=feedbackHeadlines[key];
+  
+  const tipsEl=$("tips");
+  tipsEl.innerHTML="";
+  const notes=(cfg.coachingNotes||"").split("\n").map(x=>x.trim()).filter(Boolean).slice(0,3);
+  if(notes.length){
+    notes.forEach(n=>{const li=document.createElement("li");li.textContent=n;tipsEl.appendChild(li);});
+    $("tipsSection").style.display="block";
+  }else{
+    $("tipsSection").style.display="none";
+  }
+  
+  if(hint){
+    $("coaching").textContent=hint;
+    $("coachingSection").style.display="block";
+  }else{
+    $("coachingSection").style.display="none";
+  }
+}
+
+function hideFeedback(){
+  $("feedback").style.display="none";
+}
+
+function renderChoices(){
+  $("choices").innerHTML="";
+  const step=stepsByName.get(state.currentName);if(!step)return;
+  let opts=ORDER.map(k=>({key:k,...step.branches[k]}));
+  if(theme.shuffle)opts=shuffle(opts);
+  opts.forEach(o=>{
+    const btn=document.createElement("button");btn.className="btn primary";
+    btn.textContent=o.agentReply||"("+o.key+")";
+    btn.onclick=()=>pick(o);$("choices").appendChild(btn);
+  });
+}
+
+function pick(o){
+  if(state.ended)return;
+  bubble("agent",o.agentReply);
+  state.trust=Math.max(0,Math.min(100,state.trust+trustChange[o.key]));
+  state.stepsCompleted++;
+  updateTrust();
+  updateProgress();
+  showFeedback(o.key,o.hint);
+  
+  if(!o.nextStep||!stepsByName.has(o.nextStep)){
+    end();
+  }else{
+    state.currentName=o.nextStep;
+    const next=stepsByName.get(state.currentName);
+    setTimeout(function(){
+      bubble("cust",next.customerFirst);
+      renderChoices();
+    },2000);
+  }
+}
+
+function end(){
+  state.ended=true;
+  $("responder").style.display="none";
+  hideFeedback();
+  $("outcome").style.display="block";
+  $("finalScore").textContent=state.trust+"%";
+  
+  const rating=$("rating");
+  if(state.trust>=80){
+    rating.textContent="Excellent";
+  }else if(state.trust>=50){
+    rating.textContent="Good";
+  }else{
+    rating.textContent="Needs work";
+  }
+}
+
+function reset(){
+  state={trust:70,stepsCompleted:0,ended:false,currentName:cfg.startStepName||cfg.steps?.[0]?.name||""};
+  updateTrust();
+  updateProgress();
+  hideFeedback();
+  $("chat").innerHTML="";
+  $("responder").style.display="block";
+  $("outcome").style.display="none";
+  const start=stepsByName.get(state.currentName);
+  if(start)bubble("cust",start.customerFirst);
+  renderChoices();
+}
+
+$("title").textContent=cfg.scenarioTitle||"";
+$("sub").textContent=cfg.scenarioSubtitle||"";
+if(!theme.showMood)$("moodDisplay").style.display="none";
+$("restart").onclick=reset;
+reset();
+</script>
+</body>
+</html>
